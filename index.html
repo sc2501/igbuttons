@@ -46,9 +46,7 @@ dialog label{font-size:13px;color:#9aa0a6}
 <div id="list"></div>
 <div class="bar">
 <button class="pri" id="addBtn">＋ 新增</button>
-<label>匯入<input type="file" id="imp" accept=".csv,.json,text/csv,application/json" hidden></label>
-<button id="expBtn">匯出</button>
-<details style="font-size:13px;color:#9aa0a6;margin:6px 0"><summary>📦 從舊網址搬資料</summary>在舊網址 deluxe-zuccutto-79cb0f.netlify.app 按「匯出」存下 JSON 檔，再回到這裡按「匯入」選那個檔案。你自己新增的地點、座標、營業時間、地區都會一起搬過來，重複的會自動略過。</details>
+
 </div>
 <dialog id="dlg"><form method="dialog" id="fm">
 <h3 style="margin-top:0">新增地點</h3>
@@ -57,6 +55,12 @@ dialog label{font-size:13px;color:#9aa0a6}
 <div id="autoMsg" style="font-size:13px;color:#9aa0a6;margin:6px 0"></div>
 <div id="autoList"></div>
 <div class="row" id="autoSaveRow" style="display:none;margin:8px 0"><button type="button" id="autoSave" style="background:#34a853;color:#fff">＋ 加入勾選的地點</button></div>
+<details id="imgBox" style="margin:8px 0"><summary style="cursor:pointer;color:#9aa0a6">🖼️ 看圖片匯入（截圖、招牌、地圖截圖）</summary>
+<label>選照片或拍照</label><input type="file" id="imgIn" accept="image/*">
+<div id="ocrMsg" style="font-size:13px;color:#9aa0a6;margin:4px 0"></div>
+<label>辨識出的文字（可以修改，例如只留下店名和地址）</label><textarea id="ocrTxt" rows="6"></textarea>
+<div class="row"><button type="button" id="ocrGo" style="background:#4285f4;color:#fff">🔍 用這段文字找地點</button></div>
+</details>
 <details id="manual"><summary style="cursor:pointer;color:#9aa0a6;margin:8px 0">✏️ 手動輸入</summary>
 <label>Google 地圖分享連結（選填，例如 https://maps.app.goo.gl/…）</label><input name="link" inputmode="url">
 <label>名稱</label><input name="name">
@@ -189,14 +193,26 @@ document.getElementById('autoGo').onclick=function(){var v=(fm.elements.auto.val
  if(!/https?:\/\//.test(v)){msg.textContent='請貼上完整網址（https://…）';return;}
  msg.textContent='讀取中…（清單或多個地點可能要 10–30 秒）';L.innerHTML='';document.getElementById('autoSaveRow').style.display='none';
  if(!RESOLVER_URL){msg.textContent='連結判讀服務還在搬家中，暫時請用下方手動輸入。';document.getElementById('manual').open=true;return;}
- fetch(RESOLVER_URL+'?url='+encodeURIComponent(v)).then(function(r){return r.json();}).then(function(o){
+ fetch(RESOLVER_URL+'?url='+encodeURIComponent(v)).then(function(r){return r.json();}).then(function(o){showRes(o,v);}).catch(function(e){msg.textContent='連線失敗：'+e.message+'。可以改用下方手動輸入。';document.getElementById('manual').open=true;});};
+function showRes(o,v,txt){var msg=document.getElementById('autoMsg'),L=document.getElementById('autoList');L.innerHTML='';document.getElementById('autoSaveRow').style.display='none';
   if(!o.ok){msg.textContent='讀取失敗：'+(o.error||'')+'。可以改用下方手動輸入。';document.getElementById('manual').open=true;return;}
   autoRes=o.places||[];
-  if(!autoRes.length){msg.textContent='這個連結裡找不到明確的地點'+(o.title?'（'+o.title+'）':'')+'。可以用下方手動輸入。';var mf=fm.elements;mf.sourceUrl.value=v;mf.sourceTitle.value=o.title||'';mf.author.value=o.author||'';document.getElementById('manual').open=true;return;}
+  if(!autoRes.length){msg.textContent='這個連結裡找不到明確的地點'+(o.title?'（'+o.title+'）':'')+'。可以用下方手動輸入。';var mf=fm.elements;mf.sourceUrl.value=v||'';if(txt){mf.name.value='';mf.note.value=txt.replace(/\s+/g,' ').slice(0,200);}mf.sourceTitle.value=o.title||'';mf.author.value=o.author||'';document.getElementById('manual').open=true;return;}
   msg.textContent='找到 '+autoRes.length+' 個地點'+(o.title?'：'+o.title:'')+'。分類可以改，營業時間等查不到的都標「未確認」。';
   L.innerHTML=autoRes.map(function(x,i){var d=dupOf(x);return '<div style="border:1px solid #3c4048;border-radius:8px;padding:8px;margin:6px 0"><label style="display:flex;gap:8px;align-items:center;color:#e8eaed;font-size:15px"><input type="checkbox" data-ai="'+i+'" '+(d?'':'checked')+' style="width:auto;margin:0"> <b>'+esc(x.name)+'</b></label><small style="display:block;color:#9aa0a6">'+esc(x.address||'')+(typeof x.lat==='number'?'':'（座標未確認）')+(x.note?'・'+esc(x.note):'')+(d?'・已在清單中':'')+'</small><select data-ac="'+i+'" style="margin:4px 0 0">'+CATS.concat(CATS.indexOf(x.category)<0?[x.category]:[]).map(function(c){return '<option'+(c===x.category?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select><input data-ar="'+i+'" value="'+esc(regionOf(x))+'" placeholder="地區" style="margin:4px 0 0"></div>';}).join('');
-  document.getElementById('autoSaveRow').style.display='flex';
- }).catch(function(e){msg.textContent='連線失敗：'+e.message+'。可以改用下方手動輸入。';document.getElementById('manual').open=true;});};
+  document.getElementById('autoSaveRow').style.display='flex';}
+var tessP=null;function tess(){return tessP||(tessP=new Promise(function(ok,no){var sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=function(){ok(window.Tesseract);};sc.onerror=function(){tessP=null;no(new Error('辨識程式載入失敗'));};document.head.appendChild(sc);}));}
+function shrink(f){return new Promise(function(ok){var im=new Image();im.onload=function(){var k=Math.min(1,2000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c);};im.onerror=function(){ok(f);};im.src=URL.createObjectURL(f);});}
+document.getElementById('imgIn').onchange=function(e){var f=e.target.files[0],om=document.getElementById('ocrMsg'),ta=document.getElementById('ocrTxt');if(!f)return;
+ om.textContent='載入辨識程式中（第一次約需下載 20MB，請稍候）…';ta.value='';
+ Promise.all([tess(),shrink(f)]).then(function(a){return a[0].recognize(a[1],'chi_tra+jpn+eng',{logger:function(m){if(m.status==='recognizing text')om.textContent='辨識中… '+Math.round(m.progress*100)+'%';else if(m.status)om.textContent='準備中：'+m.status;}});})
+ .then(function(r){var t=(r.data.text||'').replace(/(\S) (?=\S)/g,function(a,b){return /[\u3000-\u9fff\uff00-\uffef]/.test(b)?b:a;}).replace(/\n{3,}/g,'\n\n').trim();ta.value=t;om.textContent=t?'辨識完成。請檢查文字（錯字可以直接改），再按「用這段文字找地點」。':'圖片裡讀不到文字，請換一張更清楚的圖或手動輸入。';})
+ .catch(function(err){om.textContent='辨識失敗：'+err.message;});};
+document.getElementById('ocrGo').onclick=function(){var t=(document.getElementById('ocrTxt').value||'').trim(),msg=document.getElementById('autoMsg');if(!t){document.getElementById('ocrMsg').textContent='沒有文字可以搜尋。';return;}
+ if(!RESOLVER_URL){msg.textContent='地點搜尋服務未設定，請用手動輸入。';return;}
+ msg.textContent='用文字搜尋地點中…';
+ fetch(RESOLVER_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:t})}).then(function(r){return r.json();}).then(function(o){o.title=o.title||'圖片匯入';showRes(o,'',t);})
+ .catch(function(e){msg.textContent='連線失敗：'+e.message+'。可以改用下方手動輸入。';var mf=fm.elements;mf.note.value=t.replace(/\s+/g,' ').slice(0,200);document.getElementById('manual').open=true;});};
 fm.elements.auto.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();document.getElementById('autoGo').click();}});
 document.getElementById('autoSave').onclick=function(){var L=document.getElementById('autoList'),n=0,t=Date.now();
  autoRes.forEach(function(x,i){if(!L.querySelector('[data-ai="'+i+'"]').checked)return;var d={id:'p'+t+'_'+i,name:x.name,address:x.address==='未確認'?'':(x.address||''),note:x.note||'',category:L.querySelector('[data-ac="'+i+'"]').value,region:(L.querySelector('[data-ar="'+i+'"]').value||'').trim(),sourceUrl:x.sourceUrl||'',sourceTitle:x.sourceTitle||'',author:x.author||'',link:x.link||'',hours:x.hours||'未確認',closed:x.closed||'未確認',service:x.service||'未確認',goshuin:/寺|神社|神宮|稲荷|稻荷|大社/.test(x.name)?'未確認':''};
@@ -210,26 +226,7 @@ dlg.addEventListener('close',function(){if(dlg.returnValue!=='ok')return;
  if(fm.elements.catSel.value!=='__custom')d.category=fm.elements.catSel.value;else if(!d.category)d.category='未分類';
  if(!d.region)d.region=regionOf(d);
  d.id='p'+Date.now();places.push(d);save();render();geocode(d);});
-function parseCSV(t){var rows=[],r=[],f='',q=false;t=t.replace(/^\uFEFF/,'');
- for(var i=0;i<t.length;i++){var c=t[i];
-  if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
-  else if(c==='"')q=true;else if(c===','){r.push(f);f='';}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;r.push(f);rows.push(r);r=[];f='';}else f+=c;}
- if(f||r.length){r.push(f);rows.push(r);}return rows.filter(function(x){return x.join('').trim();});}
-var alias={name:['name','名稱','地點'],address:['address','地址'],note:['note','備註','說明'],category:['category','分類'],sourceUrl:['sourceurl','source','來源','來源網址'],sourceTitle:['sourcetitle','標題','來源標題'],author:['author','作者'],link:['link','maps','分享連結','google地圖連結']};
-function norm(o){var n={};Object.keys(alias).forEach(function(k){for(var key in o){if(alias[k].indexOf(String(key).trim().toLowerCase())>=0){n[k]=String(o[key]||'').trim();break;}}n[k]=n[k]||'';});return n;}
-document.getElementById('imp').onchange=function(e){var file=e.target.files[0];if(!file)return;var rd=new FileReader();
- rd.onload=function(){var arr=[];try{
-  if(/\.json$/i.test(file.name)||/^\s*[\[{]/.test(rd.result)){var j=JSON.parse(rd.result);arr=Array.isArray(j)?j:(j.places||[]);}
-  else{var rows=parseCSV(rd.result),hd=rows.shift();arr=rows.map(function(r){var o={};hd.forEach(function(h,i){o[h]=r[i];});return o;});}
- }catch(err){alert('匯入失敗：'+err.message);return;}
- var n=0,sk=0;arr.forEach(function(o,i){var p;
-  if(o&&o.id&&(o.lat!=null||o.hours!=null||o.region!=null||o.category!=null)&&o.name){p=JSON.parse(JSON.stringify(o));delete p._d;
-   if(places.some(function(x){return x.id===p.id||(x.name===p.name&&(x.address||'')===(p.address||'')&&(x.sourceUrl||'')===(p.sourceUrl||''));})){sk++;return;}}
-  else{p=norm(o);if(!p.name&&!p.address&&!p.link)return;if(!p.name)p.name=p.address;p.id='i'+Date.now()+'_'+i;}
-  places.push(p);n++;if(typeof p.lat!=='number')geocode(p);});
- save();render();alert('已匯入 '+n+' 個地點'+(sk?'（'+sk+' 個已存在，略過）':''));e.target.value='';};rd.readAsText(file);};
-document.getElementById('expBtn').onclick=function(){var b=new Blob([JSON.stringify(places,null,2)],{type:'application/json'});
- var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='places-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();};
+
 var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#4285f4"/><text x="90" y="122" font-size="100" text-anchor="middle">📍</text></svg>';
 var icon='data:image/svg+xml,'+encodeURIComponent(svg);document.getElementById('ati').href=icon;
 var man={name:'地點按鈕',short_name:'地點按鈕',start_url:location.href.split('#')[0],display:'standalone',background_color:'#111318',theme_color:'#111318',icons:[{src:icon,sizes:'180x180',type:'image/svg+xml'}]};

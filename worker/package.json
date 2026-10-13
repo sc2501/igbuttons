@@ -1,1 +1,1 @@
-{"name":"igbuttons-resolve","private":true,"devDependencies":{"node":"^22.23.3","wrangler":"^4.149.0"}}
+{"name":"igbuttons-resolve","private":true,"type":"module","devDependencies":{"node":"^22.23.3","wrangler":"^4.149.0"}}

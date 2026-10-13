@@ -19,6 +19,7 @@ async function geo(name,addr){let g=null;const c=cc((addr||'')+' '+(name||''));
  if(addr&&addr!==U){const a=addr.replace(/^日本\s*/,'').replace(/^〒?\d{3}-?\d{4}\s*/,'').replace(/^\d{3,6}/,'').replace(/([區区])[^\s路街道巷段]{1,3}里/,'$1');
   g=await nomi(a,c);if(!g){const b=a.replace(/(\d+)[之-]\d+號.*/,'$1號').replace(/[0-9０-９]+[樓F階].*$/,'');if(b!==a)g=await nomi(b,c);}
   if(!g){const st=a.replace(/[0-9０-９]+([之-][0-9]+)?[號号].*$/,'').replace(/[0-9０-９]+巷.*$/,'');if(st&&st!==a){g=await nomi(st,c);if(g)g.approx=true;}}}
+ if(!g&&addr&&c==='jp'){const j=addr.replace(/^日本\s*/,'').replace(/^〒?\d{3}-?\d{4}\s*/,'').replace(/[0-9０-９\-－−丁目番地号の]+.*$/,'');if(j&&j!==addr){g=await nomi(j,c);if(g)g.approx=true;}}
  if(!g&&name)g=await nomi(name,c);return g;}
 async function expand(u){let cur=u;for(let i=0;i<6;i++){if(/placelists\/list\//.test(cur))return{url:cur};const r=await fetch(cur,{redirect:'manual',headers:{'user-agent':UA_D}});const l=r.headers.get('location');if(r.status>=300&&r.status<400&&l){cur=new URL(l,cur).href;continue;}
  if(/consent\.google/.test(cur)){const c=new URL(cur).searchParams.get('continue');if(c){cur=c;continue;}}return {url:cur,res:r};}return {url:cur};}
@@ -49,7 +50,7 @@ function strip(h){return h.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').r
 const ADDR=/((?:東京都|北海道|(?:大阪|京都)府|[^\s、，,。]{2,3}県)[^\s、，,。]{2,40}?[0-9０-９\-－−丁目番地号]+[^\s、，,。]{0,20})|((?:臺|台)?[^\s、，,。]{1,3}[市縣][^\s、，,。]{1,4}[區鄉鎮市][^\s、，,。]{1,30}?[0-9０-９]+[號号])/;
 function extractText(text){const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);const out=[];let pend=null;
  for(const l of lines){const lab=l.match(/^(?:📍|🏠|🏮|📌|⛩️?|🍴|店名|名稱|地點|店舗|店|Shop|Place)\s*[:：]?\s*(.+)$/i);const am=l.match(ADDR);const al=l.match(/^((?:日本)?\s*〒\s*\d{3}-?\d{4}.*)$/)?[0,l]:l.match(/^(?:地址|住所|Address|🗺️?)\s*[:：]?\s*(.+)$/i);
-  if(al||(am&&!lab)){const a=al?al[1]:am[0];if(pend&&!pend.address){pend.address=a;}else out.push(pend={name:'',address:a});continue;}
+  if(al||(am&&!lab)){const a=al?al[1]:am[0];if(pend&&!pend.address){pend.address=a;}else{const ix=lines.indexOf(l),pv=ix>0?lines[ix-1]:'';const nm=(pv&&pv.length<=30&&!ADDR.test(pv)&&!/[:：]/.test(pv))?pv.replace(/^[📍🏠📌]\s*/u,''):'';out.push(pend={name:nm,address:a});}continue;}
   if(lab){const v=lab[1].replace(/[#＃].*$/,'').trim();const am2=v.match(ADDR);
    if(am2&&am2.index===0){if(pend&&!pend.address)pend.address=am2[0];else out.push(pend={name:'',address:am2[0]});}
    else{out.push(pend={name:am2?v.slice(0,am2.index).trim():v,address:am2?am2[0]:''});}}}
@@ -57,7 +58,7 @@ function extractText(text){const lines=text.split(/\n+/).map(s=>s.trim()).filter
  return out.filter(p=>p.name||p.address).slice(0,20);}
 async function fromText(text,meta){const found=extractText(text);const places=[];
  const reg=/東京/.test(text)?'東京 ':/大阪/.test(text)?'大阪 ':/京都/.test(text)?'京都 ':'';
- for(const f of found){const g=await geo(f.address?f.name:(reg+f.name),f.address);places.push({name:f.name||f.address,address:f.address||U,lat:g?g.lat:null,lng:g?g.lng:null,category:guessCat(f.name+' '+text.slice(0,300)),...blank(),note:g?(g.approx?'座標為街道概略位置':''):'座標未確認',link:'',sourceTitle:meta.title||'',author:meta.author||''});}
+ for(const f of found){const g=await geo(f.address?f.name:(reg+f.name),f.address);places.push({name:f.name||f.address,address:f.address||U,lat:g?g.lat:null,lng:g?g.lng:null,category:guessCat(f.name||''),...blank(),note:g?(g.approx?'座標為街道概略位置':''):'座標未確認',link:'',sourceTitle:meta.title||'',author:meta.author||''});}
  return places;}
 async function ig(u){const m=u.match(/instagram\.com\/(?:[^/]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);if(!m)throw new Error('無法辨識 IG 網址');
  const code=m[2],kind=m[1]==='p'?'p':'reel';const r=await fetch('https://www.instagram.com/'+kind+'/'+code+'/embed/captioned/',{headers:{'user-agent':UA_M}});const h=await r.text();
@@ -79,11 +80,20 @@ export async function resolve(raw){const m=String(raw||'').match(/https?:\/\/[^\
  if(/(maps\.app\.goo\.gl|goo\.gl\/maps|google\.[a-z.]+\/maps|maps\.google\.)/.test(u)){const e=/maps\.app\.goo\.gl|goo\.gl/.test(u)?(await expand(u)).url:u;
   const lm=e.match(/placelists\/list\/([A-Za-z0-9_-]+)/);let out=lm?await gList(lm[1]):await gPlace(e,u);out.expanded=e;return out;}
  return page(u);}
-async function handle(req){if(req.method==='OPTIONS')return new Response('',{headers:{...H,'access-control-allow-headers':'content-type'}});
+async function fromImageText(text){text=String(text||'').slice(0,4000);let places=await fromText(text,{title:'圖片匯入'});
+ if(!places.length){const lines=[...new Set(text.split(/\n+/).map(l=>l.replace(/[|｜_~^*<>\[\]{}]/g,' ').replace(/\s+/g,' ').trim()).filter(l=>l.length>=2&&l.length<=30&&/[\u3040-\u30ff\u4e00-\u9fffA-Za-z]{2}/.test(l)&&!/^[#@]|http|追蹤|留言|按讚|分享|讚|則留言|views|likes/i.test(l)))].slice(0,6);
+  const c=cc(text);
+  for(const l of lines){const g=await nomi(l,c);if(!g)continue;const nm=(g.display.split(',')[0]||'').trim();const a=nm.replace(/\s/g,''),b=l.replace(/\s/g,'');
+   if(!(a&&(a.includes(b)||b.includes(a))))continue;places.push({name:nm,address:g.display.split(',').slice(1,5).join(',').trim()||U,lat:g.lat,lng:g.lng,category:guessCat(nm+' '+text.slice(0,300)),...blank(),note:'由圖片文字比對，請確認',link:'',sourceTitle:'圖片匯入',author:''});if(places.length>=5)break;}}
+ return{kind:'image-text',title:'圖片匯入',places};}
+async function handle(req){if(req.method==='POST'){const b=await req.clone().json().catch(()=>({}));if(b&&b.text){try{return j({ok:true,...await fromImageText(b.text)});}catch(e){return j({ok:false,error:String(e.message||e),places:[]});}}}
+ {const t=new URL(req.url).searchParams.get('text');if(t){try{return j({ok:true,...await fromImageText(t)});}catch(e){return j({ok:false,error:String(e.message||e),places:[]});}}}
+ return handle0(req);}
+async function handle0(req){if(req.method==='OPTIONS')return new Response('',{headers:{...H,'access-control-allow-headers':'content-type'}});
  const u=new URL(req.url).searchParams.get('url')||(req.method==='POST'?((await req.json().catch(()=>({}))).url):'');
  try{const out=await resolve(u);(out.places||[]).forEach(p=>{p.sourceUrl=p.sourceUrl||(m=>m?m[0]:'')(String(u).match(/https?:\/\/[^\s]+/));});return j({ok:true,...out});}
  catch(e){return j({ok:false,error:String(e.message||e),places:[]},200);}}
 const ALLOW=['https://sc2501.github.io'];
-export default{async fetch(req){const o=req.headers.get('origin')||'';const r=await handle(req);const h=new Headers(r.headers);
+export default{async fetch(req){const o=req.headers.get('origin')||'';if(req.method==='OPTIONS')return new Response('',{headers:{'access-control-allow-origin':ALLOW.includes(o)?o:ALLOW[0],'access-control-allow-headers':'content-type','access-control-allow-methods':'GET,POST,OPTIONS','vary':'Origin'}});const r=await handle(req);const h=new Headers(r.headers);
  h.set('access-control-allow-origin',ALLOW.includes(o)?o:ALLOW[0]);h.set('vary','Origin');h.set('access-control-allow-methods','GET,POST,OPTIONS');
  return new Response(r.body,{status:r.status,headers:h});}};

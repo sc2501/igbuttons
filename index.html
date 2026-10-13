@@ -70,6 +70,13 @@ body{padding-bottom:30px}
 #ghost{position:fixed;z-index:70;pointer-events:none;background:#263045ee;color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;display:none;max-width:70vw;box-shadow:0 8px 24px #000a}
 .sheet button{display:block;width:100%;text-align:left;background:#2c3038;color:#e8eaed;border:0;border-radius:10px;padding:13px;margin:6px 0;font-size:16px}
 
+#ftab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:40;width:34px;padding:12px 0 14px;border-radius:14px 0 0 14px;border:1px solid #ffffff55;border-right:0;
+ background:linear-gradient(160deg,#ffffffd0,#d9cfc3c8 45%,#8e8a85c0);color:#2a2622;font-weight:700;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:6px;
+ box-shadow:-3px 4px 14px #0009;touch-action:none;-webkit-user-select:none;user-select:none;cursor:pointer}
+#ftab .v{writing-mode:vertical-rl;letter-spacing:3px}
+body.fopen #ftab{display:none}
+#fold.drag{transition:none}
+#list{margin-right:22px}
 .empty{color:#9aa0a6;text-align:center;margin-top:40px}
 </style>
 </head>
@@ -81,6 +88,7 @@ body{padding-bottom:30px}
 <div id="msg"></div>
 <div id="list"></div>
 
+<div id="ftab" role="button" aria-label="打開資料夾"><span>📁</span><span class="v">資料夾</span></div>
 <div id="fold"><div class="fhead"><button class="cbtn" id="foldBack" aria-label="返回">‹</button><h2>資料夾</h2><button class="cbtn" id="foldNew" aria-label="新增資料夾">＋</button></div>
 <div id="fstack"></div>
 <div id="fview"><div class="fhead" style="padding-left:0;padding-right:0"><button class="cbtn" id="fvBack" aria-label="返回">‹</button><h2 id="fvTitle" style="font-size:20px"></h2><button class="cbtn" id="fvMenu" aria-label="資料夾選項">⋯</button></div><div id="fvList"></div></div></div>
@@ -311,8 +319,8 @@ function frender(){var n=folders.length;
   return '<div class="fcard" data-fid="'+esc(f.id)+'" style="margin-left:'+x+'%;transform:rotate('+r+'deg);z-index:'+(i+1)+'"><span class="fn" data-fname="'+esc(f.id)+'">'+esc(f.name)+'</span><span class="fd">'+esc(f.date)+'</span><span class="fc">'+cnt+' 個地點</span></div>';}).join('')+
   '<div class="fcard add" id="fAddCard" style="margin-left:12%;transform:rotate(4deg);z-index:'+(n+2)+'">＋</div>';
  if(curF)fvRender();}
-function fopen(){frender();foldEl.classList.add('open');}
-function fclose(){foldEl.classList.remove('open');fview.classList.remove('open');curF=null;}
+function fopen(){frender();foldEl.classList.remove('drag');foldEl.style.transform='';foldEl.classList.add('open');document.body.classList.add('fopen');}
+function fclose(){foldEl.classList.remove('open');document.body.classList.remove('fopen');fview.classList.remove('open');curF=null;}
 function fvRender(){var f=fget(curF);if(!f){fview.classList.remove('open');curF=null;return;}
  document.getElementById('fvTitle').textContent=f.name;
  var ps=f.ids.map(function(id){return places.find(function(p){return p.id===id;});}).filter(Boolean);
@@ -337,6 +345,12 @@ function linkToFolder(v,fid){var m=String(v).match(/https?:\/\/\S+/);if(!m){toas
 function pickFolder(pid){var p=places.find(function(x){return x.id===pid;});if(!p)return;
  openSheet('把「'+p.name+'」加入資料夾',folders.map(function(f){return [(f.ids.indexOf(pid)>=0?'✓ ':'📁 ')+f.name,function(){fadd(f.id,[pid]);frender();toast('已加入「'+f.name+'」');}];}).concat([['＋ 新資料夾…',function(){var f=fnew(prompt('新資料夾名稱'));if(f){fadd(f.id,[pid]);frender();toast('已加入「'+f.name+'」');}}]]));}
 document.getElementById('foldBtn').onclick=fopen;
+(function(){var tab=document.getElementById('ftab'),st=null;
+ tab.addEventListener('pointerdown',function(e){st={x:e.clientX,moved:false};tab.setPointerCapture(e.pointerId);frender();foldEl.classList.add('drag');});
+ tab.addEventListener('pointermove',function(e){if(!st)return;var dx=Math.min(0,e.clientX-st.x);if(dx<-6)st.moved=true;if(st.moved)foldEl.style.transform='translateX('+(window.innerWidth+dx)+'px)';});
+ function end(e){if(!st)return;var dx=e.clientX-st.x,m=st.moved;st=null;foldEl.classList.remove('drag');
+  if(!m||dx<-window.innerWidth*0.3)fopen();else foldEl.style.transform='';}
+ tab.addEventListener('pointerup',end);tab.addEventListener('pointercancel',function(){st=null;foldEl.classList.remove('drag');foldEl.style.transform='';});})();
 document.getElementById('foldBack').onclick=fclose;
 document.getElementById('fvBack').onclick=function(){fview.classList.remove('open');curF=null;frender();};
 document.getElementById('fvMenu').onclick=function(){if(curF)fmenu(curF);};
@@ -380,7 +394,7 @@ listEl.addEventListener('contextmenu',function(e){if(e.target.closest('[data-pid
 tray.addEventListener('click',function(e){var c=e.target.closest('[data-tf]');if(c&&c.getAttribute('data-tf')==='__new'){var f=fnew(prompt('新資料夾名稱'));if(f){trayShow();}}});
 // swipe left on main → folders; swipe right on folders → back
 var sw=null;
-document.addEventListener('touchstart',function(e){if(e.touches.length!==1||e.target.closest('input,.chips,#tray,dialog'))return sw=null;sw={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()};},{passive:true});
+document.addEventListener('touchstart',function(e){if(e.touches.length!==1||e.target.closest('input,.chips,#tray,dialog,#ftab'))return sw=null;sw={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()};},{passive:true});
 document.addEventListener('touchend',function(e){if(!sw||(tD&&tD.on))return;var t=e.changedTouches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;sw=null;
  if(Math.abs(dx)<70||Math.abs(dy)>50)return;
  if(dx<0&&!foldEl.classList.contains('open'))fopen();else if(dx>0&&foldEl.classList.contains('open')){if(fview.classList.contains('open')){fview.classList.remove('open');curF=null;frender();}else fclose();}},{passive:true});

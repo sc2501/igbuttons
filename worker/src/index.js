@@ -23,8 +23,11 @@ async function geo(name,addr){let g=null;const c=cc((addr||'')+' '+(name||''));
 async function expand(u){let cur=u;for(let i=0;i<6;i++){if(/placelists\/list\//.test(cur))return{url:cur};const r=await fetch(cur,{redirect:'manual',headers:{'user-agent':UA_D}});const l=r.headers.get('location');if(r.status>=300&&r.status<400&&l){cur=new URL(l,cur).href;continue;}
  if(/consent\.google/.test(cur)){const c=new URL(cur).searchParams.get('continue');if(c){cur=c;continue;}}return {url:cur,res:r};}return {url:cur};}
 async function gList(id){const pb='!1m4!1s'+id+'!2e2!3m1!1e1!2e2!3e2!4i500!16b1';
- const r=await fetch('https://www.google.com/maps/preview/entitylist/getlist?authuser=0&hl=zh-TW&gl=tw&pb='+pb,{headers:{'user-agent':UA_D}});
- const t=(await r.text()).replace(/^\)\]\}'\s*/,'');const d=JSON.parse(t)[0];
+ const GH={'user-agent':UA_D,'accept-language':'zh-TW,zh;q=0.9,en;q=0.5','cookie':'CONSENT=YES+cb; SOCS=CAESEwgDEgk0ODE3Nzk3MjQaAmVuIAEaBgiA_LyaBg'};
+ let r=await fetch('https://www.google.com/maps/preview/entitylist/getlist?authuser=0&hl=zh-TW&gl=tw&pb='+pb,{headers:GH});let t=await r.text();
+ if(!/^\)\]\}'/.test(t)){r=await fetch('https://maps.google.com/maps/preview/entitylist/getlist?authuser=0&hl=zh-TW&gl=tw&pb='+pb,{headers:GH});t=await r.text();}
+ if(!/^\)\]\}'/.test(t))throw new Error('Google 清單暫時讀不到（HTTP '+r.status+'，'+(t.match(/<title>([^<]*)/)||[,''])[1].slice(0,60)+'）');
+ t=t.replace(/^\)\]\}'\s*/,'');const d=JSON.parse(t)[0];
  const title=d[4]||'Google 地圖清單',author=(d[3]&&d[3][0])||'';
  const places=(d[8]||[]).map(e=>{const p=e[1]||[],c=p[5]||[],name=e[2]||'';const addr=(p[4]||'').replace(/^\d{3,6}/,'');const cid=p[6]?cidSigned(p[6][1]):'';
   return{name,address:addr,lat:c[2]??null,lng:c[3]??null,category:guessCat(name+' '+title),...blank(),note:e[3]||'',link:cid?'https://maps.google.com/?cid='+cid:'',sourceTitle:title+'（Google 地圖清單）',author};});

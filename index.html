@@ -36,7 +36,7 @@ dialog label{font-size:13px;color:#9aa0a6}
 .pill{display:flex;align-items:center;gap:8px;flex:1;background:#2c3038;border:1px solid #3c4048;border-radius:999px;padding:4px 12px 4px 4px}.pill.on{background:#1e3a5f;border-color:#4285f4}.pill button{background:#3c4048;color:#e8eaed;border:0;border-radius:999px;padding:8px 12px;font-size:14px;white-space:nowrap}.pill.on button{background:#4285f4;color:#fff}.pill input{flex:1;min-width:90px;accent-color:#4285f4}.pill span{font-size:14px;color:#e8eaed;min-width:46px;text-align:right}
 .near{display:flex;align-items:center;gap:10px;margin:2px 0 6px;flex-wrap:wrap}.near input{flex:1;min-width:140px}.near .lbl{font-size:14px;color:#9aa0a6;min-width:52px}.msg{background:#2b2a1c;color:#fdd663;border-radius:10px;padding:10px;font-size:14px;margin:6px 0}.dist{color:#81c995!important;font-weight:600}
 
-.top{display:flex;align-items:center;gap:8px}.top h1{flex:1;min-width:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top{display:flex;align-items:center;gap:8px}.top{flex-wrap:wrap}.top h1{flex:1 1 100%;font-size:20px;margin:14px 0 4px}.tbtns{display:flex;gap:8px;margin-left:auto}
 .rbtn{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid #3c4048;background:#1c1f26;color:#e8eaed;font-size:20px;line-height:1}.rbtn.pri{background:#4285f4;border-color:#4285f4;color:#fff;font-size:26px}
 body{padding-bottom:30px}
 .fbtn{flex:none;width:44px;background:#2a2f3a;color:#e8eaed;border:0;border-radius:12px;font-size:17px}
@@ -91,7 +91,7 @@ body.selmode .place.sel .go{background:#1e3a5f}
 </style>
 </head>
 <body>
-<header class="top"><h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1><button class="rbtn" id="selBtn" aria-label="選取">☑︎</button><button class="rbtn" id="foldBtn" aria-label="資料夾">📁</button><button class="rbtn pri" id="addBtn" aria-label="新增">＋</button></header>
+<header class="top"><h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1><div class="tbtns"><button class="rbtn" id="selBtn" aria-label="選取">☑︎</button><button class="rbtn" id="foldBtn" aria-label="資料夾">📁</button><button class="rbtn pri" id="addBtn" aria-label="新增">＋</button></div></header>
 <div class="chips" id="chips"></div>
 <div class="chips" id="regs"></div>
 <div class="near"><div class="pill" id="pill"><button type="button" id="nearBtn">📏 離我多遠</button><input type="range" id="rad" min="0" max="4" step="1" value="2" aria-label="距離範圍"><span id="radLbl">1 km</span></div></div>

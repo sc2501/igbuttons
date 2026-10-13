@@ -46,32 +46,32 @@ body{padding-bottom:30px}
 .pill input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;margin-top:-11px;box-shadow:0 1px 4px rgba(0,0,0,.5)}
 .pill.on input[type=range]::-webkit-slider-runnable-track{background:#8ab4f8}
 .pill input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:#5f6368}.pill input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:#fff;border:0}
-#fold{position:fixed;inset:0;z-index:50;transform:translateX(100%);transition:transform .32s ease;overflow:hidden;
- background:radial-gradient(1px 1px at 12% 8%,#fff8,transparent),radial-gradient(1px 1px at 72% 14%,#fff9,transparent),radial-gradient(1.5px 1.5px at 30% 30%,#fff7,transparent),radial-gradient(1px 1px at 85% 40%,#fff8,transparent),radial-gradient(1px 1px at 18% 62%,#fff6,transparent),radial-gradient(1.5px 1.5px at 60% 75%,#fff7,transparent),radial-gradient(1px 1px at 40% 90%,#fff6,transparent),radial-gradient(1px 1px at 92% 85%,#fff8,transparent),#000}
+#fold{position:fixed;inset:0;z-index:50;transform:translateX(100%);transition:transform .32s ease;overflow:hidden;background:#111318}
 #fold.open{transform:none}
-.fhead{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 12px) 18px 8px}
-.fhead h2{margin:0;font-size:24px;color:#fff;font-weight:700}
-.cbtn{width:56px;height:56px;border-radius:50%;border:1px solid #ffffff40;background:radial-gradient(circle at 35% 30%,#3a3a3a,#111);color:#fff;font-size:26px;box-shadow:0 2px 10px #0008}
-#fstack{position:absolute;top:calc(env(safe-area-inset-top) + 84px);bottom:0;left:0;right:0;overflow-y:auto;padding:20px 0 220px;-webkit-overflow-scrolling:touch}
-.fcard{position:relative;height:200px;margin:-118px 0 0;width:74%;border-radius:6px;padding:16px 16px;color:#222;
- background:linear-gradient(160deg,#ffffffd9,#d9cfc3cc 40%,#8e8a85bb);box-shadow:0 10px 30px #000a;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
- display:flex;justify-content:space-between;align-items:flex-start;font-weight:700;font-size:15px;transition:transform .2s,box-shadow .2s;-webkit-user-select:none;user-select:none}
-.fcard:first-child{margin-top:0}
-.fcard .fn{max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fcard .fd{color:#333;font-size:15px;white-space:nowrap}
-.fcard .fc{position:absolute;left:16px;bottom:14px;font-size:12px;color:#444;font-weight:500}
-.fcard.hot{box-shadow:0 0 0 3px #8ab4f8,0 10px 30px #000a}
-.fcard.add{justify-content:center;align-items:center;font-size:44px;font-weight:300;color:#fff;background:linear-gradient(160deg,#d9c3abdd,#a08a78cc 60%,#6d5f55bb)}
-#fview{position:absolute;inset:0;background:#111318;transform:translateX(100%);transition:transform .3s;overflow-y:auto;padding:0 14px 40px}
+.fhead{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 10px) 14px 6px}
+.fhead h2{margin:0;font-size:20px;color:#e8eaed;font-weight:700}
+.cbtn{width:44px;height:44px;border-radius:50%;border:1px solid #3c4048;background:#1c1f26;color:#e8eaed;font-size:22px}
+#fstack{position:absolute;top:calc(env(safe-area-inset-top) + 66px);bottom:0;left:0;right:0;overflow-y:auto;padding:8px 14px 120px;-webkit-overflow-scrolling:touch;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+.fcard{position:relative;height:200px;border-radius:18px;padding:14px;background:#1a1d24;border:1px solid #2c3038;color:#e8eaed;-webkit-user-select:none;user-select:none;transition:border-color .15s,background .15s}
+.fcard:active{background:#263045}
+.fcard .fd{display:block;color:#9aa0a6;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcard .fn{display:block;margin-top:10px;font-size:16px;font-weight:700;line-height:1.35;word-break:break-word;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.fcard .fc{position:absolute;left:14px;bottom:12px;font-size:12px;color:#8ab4f8}
+.fcard.hot{border-color:#4285f4;background:#1e3a5f}
+#fFab{position:absolute;right:18px;bottom:calc(22px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:50%;border:0;background:#4285f4;color:#fff;font-size:32px;box-shadow:0 6px 18px #0009;z-index:5}
+.fempty{grid-column:1/3;color:#9aa0a6;text-align:center;margin-top:50px;line-height:1.7}
+.chooser button.on{background:#1e3a5f;outline:2px solid #4285f4}
+#fview{position:absolute;inset:0;background:#111318;z-index:6;transform:translateX(100%);transition:transform .3s;overflow-y:auto;padding:0 14px 40px}
 #fview.open{transform:none}
 #tray{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;gap:10px;overflow-x:auto;padding:14px 14px calc(14px + env(safe-area-inset-bottom));background:#000d}
 #tray.show{display:flex}
-#tray .tc{flex:none;min-width:120px;height:70px;border-radius:6px;padding:10px;font-weight:700;color:#222;background:linear-gradient(160deg,#fff,#d9cfc3 50%,#9b968f);transform:rotate(-3deg)}
-#tray .tc.hot{box-shadow:0 0 0 3px #8ab4f8}
+#tray .tc{flex:none;min-width:110px;height:76px;border-radius:14px;padding:10px;font-weight:700;color:#e8eaed;background:#1a1d24;border:1px solid #3c4048}
+#tray .tc.hot{border-color:#4285f4;background:#1e3a5f}
 #ghost{position:fixed;z-index:70;pointer-events:none;background:#263045ee;color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;display:none;max-width:70vw;box-shadow:0 8px 24px #000a}
 .sheet button{display:block;width:100%;text-align:left;background:#2c3038;color:#e8eaed;border:0;border-radius:10px;padding:13px;margin:6px 0;font-size:16px}
 
-#ftab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:40;width:34px;padding:12px 0 14px;border-radius:14px 0 0 14px;border:1px solid #ffffff55;border-right:0;
- background:linear-gradient(160deg,#ffffffd0,#d9cfc3c8 45%,#8e8a85c0);color:#2a2622;font-weight:700;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:6px;
+#ftab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:40;width:34px;padding:12px 0 14px;border-radius:14px 0 0 14px;border:1px solid #3c4048;border-right:0;
+ background:#263045e6;color:#e8eaed;font-weight:700;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:6px;
  box-shadow:-3px 4px 14px #0009;touch-action:none;-webkit-user-select:none;user-select:none;cursor:pointer}
 #ftab .v{writing-mode:vertical-rl;letter-spacing:3px}
 body.fopen #ftab{display:none}
@@ -89,8 +89,8 @@ body.fopen #ftab{display:none}
 <div id="list"></div>
 
 <div id="ftab" role="button" aria-label="打開資料夾"><span>📁</span><span class="v">資料夾</span></div>
-<div id="fold"><div class="fhead"><button class="cbtn" id="foldBack" aria-label="返回">‹</button><h2>資料夾</h2><button class="cbtn" id="foldNew" aria-label="新增資料夾">＋</button></div>
-<div id="fstack"></div>
+<div id="fold"><div class="fhead"><button class="cbtn" id="foldBack" aria-label="返回">‹</button><h2>資料夾</h2><span style="width:44px"></span></div>
+<div id="fstack"></div><button id="fFab" aria-label="新增資料夾">＋</button>
 <div id="fview"><div class="fhead" style="padding-left:0;padding-right:0"><button class="cbtn" id="fvBack" aria-label="返回">‹</button><h2 id="fvTitle" style="font-size:20px"></h2><button class="cbtn" id="fvMenu" aria-label="資料夾選項">⋯</button></div><div id="fvList"></div></div></div>
 <div id="tray"></div><div id="ghost"></div>
 <dialog id="sheet"><div class="sheet" id="sheetBody"></div><div class="row"><button type="button" id="sheetClose">取消</button></div></dialog>
@@ -313,11 +313,9 @@ function fget(id){return folders.find(function(f){return f.id===id;});}
 function fadd(fid,pids){var f=fget(fid);if(!f)return 0;var n=0;pids.forEach(function(id){if(f.ids.indexOf(id)<0){f.ids.push(id);n++;}});fsave();return n;}
 function fnew(name){name=(name||'').trim();if(!name)return null;var f={id:'f'+Date.now(),name:name.slice(0,40),date:today(),ids:[]};folders.push(f);fsave();return f;}
 var foldEl=document.getElementById('fold'),fstack=document.getElementById('fstack'),fview=document.getElementById('fview'),curF=null;
-function frender(){var n=folders.length;
- fstack.innerHTML=folders.map(function(f,i){var k=n-i,x=Math.min(k*7,26),r=(i%2?2.5:-2.5)+(k>3?1:0);
-  var cnt=f.ids.filter(function(id){return places.some(function(p){return p.id===id;});}).length;
-  return '<div class="fcard" data-fid="'+esc(f.id)+'" style="margin-left:'+x+'%;transform:rotate('+r+'deg);z-index:'+(i+1)+'"><span class="fn" data-fname="'+esc(f.id)+'">'+esc(f.name)+'</span><span class="fd">'+esc(f.date)+'</span><span class="fc">'+cnt+' 個地點</span></div>';}).join('')+
-  '<div class="fcard add" id="fAddCard" style="margin-left:12%;transform:rotate(4deg);z-index:'+(n+2)+'">＋</div>';
+function frender(){
+ fstack.innerHTML=folders.length?folders.slice().reverse().map(function(f){var cnt=f.ids.filter(function(id){return places.some(function(p){return p.id===id;});}).length;
+  return '<div class="fcard" data-fid="'+esc(f.id)+'"><span class="fd">'+esc(f.date)+'</span><span class="fn" data-fname="'+esc(f.id)+'">'+esc(f.name)+'</span><span class="fc">'+cnt+' 個地點</span></div>';}).join(''):'<p class="fempty">還沒有資料夾<br>按右下角 ＋ 建立第一個</p>';
  if(curF)fvRender();}
 function fopen(){frender();foldEl.classList.remove('drag');foldEl.style.transform='';foldEl.classList.add('open');document.body.classList.add('fopen');}
 function fclose(){foldEl.classList.remove('open');document.body.classList.remove('fopen');fview.classList.remove('open');curF=null;}
@@ -342,8 +340,12 @@ function linkToFolder(v,fid){var m=String(v).match(/https?:\/\/\S+/);if(!m){toas
    if(typeof x.lat==='number'){q.lat=x.lat;q.lng=x.lng;}q.region=regionOf(q);places.push(q);added.push(q);ids.push(q.id);});
   save();fadd(fid,ids);render();frender();queueP(added);toast('已加入 '+ids.length+' 個地點到「'+(fget(fid)||{}).name+'」');})
  .catch(function(e){toast('讀取失敗：'+e.message);});}
-function pickFolder(pid){var p=places.find(function(x){return x.id===pid;});if(!p)return;
- openSheet('把「'+p.name+'」加入資料夾',folders.map(function(f){return [(f.ids.indexOf(pid)>=0?'✓ ':'📁 ')+f.name,function(){fadd(f.id,[pid]);frender();toast('已加入「'+f.name+'」');}];}).concat([['＋ 新資料夾…',function(){var f=fnew(prompt('新資料夾名稱'));if(f){fadd(f.id,[pid]);frender();toast('已加入「'+f.name+'」');}}]]));}
+function pickFolder(pid,pre){var p=places.find(function(x){return x.id===pid;});if(!p)return;var sel=pre||null;
+ function draw(){sheetBody.innerHTML='<h3 style="margin:4px 0 8px">把「'+esc(p.name)+'」加入資料夾</h3><div class="chooser">'+folders.map(function(f){var inF=f.ids.indexOf(pid)>=0;return '<button type="button" data-cf="'+esc(f.id)+'" class="'+(sel===f.id?'on':'')+'">'+(sel===f.id?'◉ ':'○ ')+esc(f.name)+(inF?'<span style="color:#9aa0a6;font-size:13px">（已在裡面）</span>':'')+'</button>';}).join('')+
+  '<button type="button" data-cf="__new">＋ 新資料夾…</button></div><div class="row" style="margin:8px 0 4px"><button type="button" id="cfOk" style="background:'+(sel?'#4285f4':'#3c4048')+';color:#fff"'+(sel?'':' disabled')+'>加入</button></div>';}
+ draw();sheetBody.onclick=function(e){var b=e.target.closest('[data-cf]');if(b){var v=b.getAttribute('data-cf');if(v==='__new'){var f=fnew(prompt('新資料夾名稱'));if(f){sel=f.id;frender();}}else sel=v;draw();return;}
+  if(e.target.id==='cfOk'&&sel){var f=fget(sel);sheet.close();var n=fadd(sel,[pid]);frender();toast(n?'已加入「'+f.name+'」':'「'+f.name+'」裡已經有這個地點');}};
+ sheet.open||sheet.showModal();}
 document.getElementById('foldBtn').onclick=fopen;
 (function(){var tab=document.getElementById('ftab'),st=null;
  tab.addEventListener('pointerdown',function(e){st={x:e.clientX,moved:false};tab.setPointerCapture(e.pointerId);frender();foldEl.classList.add('drag');});
@@ -354,7 +356,7 @@ document.getElementById('foldBtn').onclick=fopen;
 document.getElementById('foldBack').onclick=fclose;
 document.getElementById('fvBack').onclick=function(){fview.classList.remove('open');curF=null;frender();};
 document.getElementById('fvMenu').onclick=function(){if(curF)fmenu(curF);};
-document.getElementById('foldNew').onclick=function(){if(fnew(prompt('新資料夾名稱')))frender();};
+document.getElementById('fFab').onclick=function(){if(fnew(prompt('新資料夾名稱')))frender();};
 document.getElementById('fvList').onclick=function(e){var id=e.target.getAttribute('data-out');if(!id||!curF)return;var f=fget(curF);f.ids=f.ids.filter(function(x){return x!==id;});fsave();fvRender();};
 // card tap / long-press
 var lpT=null,lpFired=false;
@@ -366,7 +368,7 @@ fstack.addEventListener('click',function(e){if(lpFired){lpFired=false;return;}if
  var nm=e.target.getAttribute('data-fname');if(nm){frename(nm);return;}var c=e.target.closest('.fcard[data-fid]');if(c)fshow(c.getAttribute('data-fid'));});
 // desktop drop on cards (place or link)
 function dropTarget(el){var c=el&&el.closest&&el.closest('[data-fid],[data-tf]');return c?(c.getAttribute('data-fid')||c.getAttribute('data-tf')):null;}
-function handleDrop(fid,dt){var pid=dt.getData('application/x-igb-place');if(pid){fadd(fid,[pid]);frender();toast('已加入「'+fget(fid).name+'」');return;}
+function handleDrop(fid,dt){var pid=dt.getData('application/x-igb-place');if(pid){pickFolder(pid,fid==='__new'?null:fid);return;}
  var t=dt.getData('text/uri-list')||dt.getData('text/plain');if(t)linkToFolder(t,fid);}
 [fstack,document.getElementById('tray')].forEach(function(el){
  el.addEventListener('dragover',function(e){if(dropTarget(e.target)){e.preventDefault();document.querySelectorAll('.hot').forEach(function(x){x.classList.remove('hot');});e.target.closest('[data-fid],[data-tf]').classList.add('hot');}});
@@ -386,7 +388,7 @@ listEl.addEventListener('touchmove',function(e){if(!tD)return;var t=e.touches[0]
  e.preventDefault();var g=document.getElementById('ghost');g.style.left=(t.clientX-40)+'px';g.style.top=(t.clientY-50)+'px';tD.x=t.clientX;tD.y=t.clientY;
  var el=document.elementFromPoint(t.clientX,t.clientY);document.querySelectorAll('#tray .hot').forEach(function(x){x.classList.remove('hot');});var c=el&&el.closest&&el.closest('[data-tf]');if(c)c.classList.add('hot');},{passive:false});
 function tEnd(){if(!tD)return;clearTimeout(tD.tm);if(tD.on){var el=document.elementFromPoint(tD.x,tD.y),c=el&&el.closest&&el.closest('[data-tf]');document.getElementById('ghost').style.display='none';trayHide();
-  if(c){var fid=c.getAttribute('data-tf'),pid=tD.pid;if(fid==='__new'){var f=fnew(prompt('新資料夾名稱'));if(f)fid=f.id;else fid=null;}if(fid){fadd(fid,[pid]);frender();toast('已加入「'+fget(fid).name+'」');}}
+  if(c){var fid=c.getAttribute('data-tf');pickFolder(tD.pid,fid==='__new'?null:fid);}
   tD.block=true;var b=tD;setTimeout(function(){if(tD===b)tD=null;},400);return;}tD=null;}
 listEl.addEventListener('touchend',tEnd);listEl.addEventListener('touchcancel',tEnd);
 listEl.addEventListener('click',function(e){if(tD&&tD.block){e.preventDefault();e.stopPropagation();tD=null;}},true);

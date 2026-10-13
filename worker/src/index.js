@@ -180,11 +180,32 @@ async function fromImageText0(text){text=String(text||'').slice(0,4000);let plac
 async function handle(req){if(req.method==='POST'){const b=await req.clone().json().catch(()=>({}));if(b&&b.text){try{return j({ok:true,...await fromImageText(b.text)});}catch(e){return j({ok:false,error:String(e.message||e),places:[]});}}}
  {const t=new URL(req.url).searchParams.get('text');if(t){try{return j({ok:true,...await fromImageText(t)});}catch(e){return j({ok:false,error:String(e.message||e),places:[]});}}}
  return handle0(req);}
-async function handle0(req){if(req.method==='OPTIONS')return new Response('',{headers:{...H,'access-control-allow-headers':'content-type'}});
+async function handle0(req){if(req.method==='OPTIONS')return new Response('',{headers:{...H,'access-control-allow-headers':'content-type,x-admin-key'}});
  const u=new URL(req.url).searchParams.get('url')||(req.method==='POST'?((await req.json().catch(()=>({}))).url):'');
  try{const out=await resolve(u);(out.places||[]).forEach(p=>{p.sourceUrl=p.sourceUrl||(m=>m?m[0]:'')(String(u).match(/https?:\/\/[^\s]+/));});return j({ok:true,...out});}
  catch(e){return j({ok:false,error:String(e.message||e),places:[]},200);}}
 const ALLOW=['https://sc2501.github.io'];
-export default{async fetch(req){const o=req.headers.get('origin')||'';if(req.method==='OPTIONS')return new Response('',{headers:{'access-control-allow-origin':ALLOW.includes(o)?o:ALLOW[0],'access-control-allow-headers':'content-type','access-control-allow-methods':'GET,POST,OPTIONS','vary':'Origin'}});const r=await handle(req);const h=new Headers(r.headers);
+const okId=id=>typeof id==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(id);
+const cut=(v,n)=>typeof v==='string'?v.slice(0,n):'';
+async function route(req,env){const u=new URL(req.url),P=u.pathname,K=env.PLACES;
+ const admin=()=>env.ADMIN_KEY&&(req.headers.get('x-admin-key')===env.ADMIN_KEY);
+ if(P==='/queue'&&req.method==='POST'){const b=await req.json().catch(()=>null);const arr=Array.isArray(b)?b:b&&b.places?b.places:[b];let n=0;
+  for(const p of arr.slice(0,20)){if(!p||!okId(p.id)||!p.name)continue;
+   const rec={id:p.id,name:cut(p.name,120),address:cut(p.address,200),link:cut(p.link,400),lat:typeof p.lat==='number'?p.lat:null,lng:typeof p.lng==='number'?p.lng:null,category:cut(p.category,20),sourceUrl:cut(p.sourceUrl,400),sourceTitle:cut(p.sourceTitle,120),queuedAt:new Date().toISOString()};
+   if(await K.get('e:'+p.id))continue;await K.put('q:'+p.id,JSON.stringify(rec),{expirationTtl:60*60*24*30});n++;}
+  return j({ok:true,queued:n});}
+ if(P==='/queue'&&req.method==='GET'){if(!admin())return j({ok:false,error:'forbidden'},403);
+  const l=await K.list({prefix:'q:',limit:100});const out=[];for(const k of l.keys){const v=await K.get(k.name);if(v)out.push(JSON.parse(v));}return j({ok:true,pending:out});}
+ if(P==='/enrich'&&req.method==='POST'){if(!admin())return j({ok:false,error:'forbidden'},403);
+  const b=await req.json().catch(()=>null);const arr=Array.isArray(b)?b:[b];let n=0;
+  for(const e of arr){if(!e||!okId(e.id))continue;const rec={id:e.id,enrichedAt:new Date().toISOString()};
+   for(const f of['hours','closed','service','goshuin','extra','reviews','note','verified','hoursSrc','closedSrc','serviceSrc','extraSrc','reviewsSrc','address','link'])if(typeof e[f]==='string'&&e[f])rec[f]=e[f].slice(0,1500);
+   for(const f of['lat','lng'])if(typeof e[f]==='number')rec[f]=e[f];
+   await K.put('e:'+e.id,JSON.stringify(rec));await K.delete('q:'+e.id);n++;}
+  return j({ok:true,saved:n});}
+ if(P==='/enrich'&&req.method==='GET'){const ids=(u.searchParams.get('ids')||'').split(',').filter(okId).slice(0,50);const out={};
+  await Promise.all(ids.map(async id=>{const v=await K.get('e:'+id);if(v)out[id]=JSON.parse(v);}));return j({ok:true,enrich:out});}
+ return null;}
+export default{async fetch(req,env){const o=req.headers.get('origin')||'';if(req.method==='OPTIONS')return new Response('',{headers:{'access-control-allow-origin':ALLOW.includes(o)?o:ALLOW[0],'access-control-allow-headers':'content-type','access-control-allow-methods':'GET,POST,OPTIONS','vary':'Origin'}});const r=(await route(req,env))||await handle(req);const h=new Headers(r.headers);
  h.set('access-control-allow-origin',ALLOW.includes(o)?o:ALLOW[0]);h.set('vary','Origin');h.set('access-control-allow-methods','GET,POST,OPTIONS');
  return new Response(r.body,{status:r.status,headers:h});}};

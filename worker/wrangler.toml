@@ -1,3 +1,7 @@
 name = "igbuttons-resolve"
 main = "src/index.js"
 compatibility_date = "2026-10-01"
+
+[[kv_namespaces]]
+binding = "PLACES"
+id = "a12076407dec4e34aa6674b18bb6c901"

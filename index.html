@@ -108,7 +108,7 @@ if(!Array.isArray(places))places=seed.slice();
 else{var k=function(p){return [p.name,p.address,p.sourceUrl||''].join('|');},have={};places.forEach(function(p){have[k(p)]=1;});
  var ids={};places.forEach(function(p){ids[p.id]=1;});
  var sid={},sk={};seed.forEach(function(p){sid[p.id]=p;sk[k(p)]=p;});
- places.forEach(function(p){var b=sid[p.id]||sk[k(p)];if(b&&(sid[p.id]?(k(p)===k(b)||(p.name===b.name&&(p.sourceUrl||'')===(b.sourceUrl||''))):true)){p.address=b.address;if(b.note!=null)p.note=b.note;p.category=b.category;p.lat=b.lat;p.lng=b.lng;if(b.link)p.link=b.link;['hours','closed','service','goshuin','verified'].forEach(function(f){if(b[f]!=null)p[f]=b[f];});}});
+ places.forEach(function(p){var b=sid[p.id]||sk[k(p)];if(b&&(sid[p.id]?(k(p)===k(b)||(p.name===b.name&&(p.sourceUrl||'')===(b.sourceUrl||''))):true)){p.address=b.address;if(b.note!=null)p.note=b.note;p.category=b.category;p.lat=b.lat;p.lng=b.lng;if(b.link)p.link=b.link;['hours','closed','service','goshuin','verified','reviews','reviewsSrc','extra','extraSrc'].forEach(function(f){if(b[f]!=null)p[f]=b[f];});}});
  seed.forEach(function(p){if(!have[k(p)]&&!ids[p.id])places.push(p);});
  try{localStorage.setItem(KEY,JSON.stringify(places));}catch(e){}}
 function save(){localStorage.setItem(KEY,JSON.stringify(places));}
@@ -143,7 +143,7 @@ function info(p){var h='';
  if(p.service==='只外帶')h+='<span class="tag" style="background:#e37400">🥡 只能外帶</span>';
  function S(k){return p[k]?'<span style="opacity:.55">（'+esc(p[k])+'）</span>':'';}
  var l='';if(p.hours)l+='<small>⏰ '+esc(p.hours)+S('hoursSrc')+'</small>';if(p.closed)l+='<small>🚫 公休：'+esc(p.closed)+S('closedSrc')+'</small>';
- if(p.goshuin)l+='<small>⛩️ 御朱印/御守：'+esc(p.goshuin)+'</small>';if(p.service&&p.service!=='只外帶')l+='<small>🍽️ '+esc(p.service)+S('serviceSrc')+'</small>';if(p.extra)l+='<small>💡 '+esc(p.extra)+S('extraSrc')+'</small>';
+ if(p.goshuin)l+='<small>⛩️ 御朱印/御守：'+esc(p.goshuin)+'</small>';if(p.service&&p.service!=='只外帶')l+='<small>🍽️ '+esc(p.service)+S('serviceSrc')+'</small>';if(p.extra)l+='<small>💡 '+esc(p.extra)+S('extraSrc')+'</small>';if(p.reviews)l+='<small>👍 網友推薦：'+esc(p.reviews)+S('reviewsSrc')+'</small>';else if(p.queued&&!p.enrichedAt)l+='<small style="opacity:.55">🔎 店家資訊查詢中…</small>';
  if(p.verified)l+='<small style="opacity:.6">ℹ️ 資料：'+esc(p.verified)+'</small>';return [h,l];}
 function render(){
  var cats=['全部','觀光景點','餐廳'];places.forEach(function(p){var c=p.category||'未分類';if(cats.indexOf(c)<0)cats.push(c);});
@@ -226,9 +226,9 @@ document.getElementById('ocrGo').onclick=function(){var t=(document.getElementBy
  .catch(function(e){msg.textContent='連線失敗：'+e.message+'。可以改用下方手動輸入。';var mf=fm.elements;mf.note.value=t.replace(/\s+/g,' ').slice(0,200);document.getElementById('manual').open=true;});};
 fm.elements.auto.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();document.getElementById('autoGo').click();}});
 document.getElementById('autoSave').onclick=function(){var L=document.getElementById('autoList'),n=0,t=Date.now();
- autoRes.forEach(function(x,i){if(!L.querySelector('[data-ai="'+i+'"]').checked)return;var d={id:'p'+t+'_'+i,name:x.name,address:x.address==='未確認'?'':(x.address||''),note:x.note||'',category:L.querySelector('[data-ac="'+i+'"]').value,region:(L.querySelector('[data-ar="'+i+'"]').value||'').trim(),sourceUrl:x.sourceUrl||'',sourceTitle:x.sourceTitle||'',author:x.author||'',link:x.link||'',hours:x.hours||'未確認',closed:x.closed||'未確認',service:x.service||'未確認',extra:x.extra||'',hoursSrc:x.hoursSrc||'',closedSrc:x.closedSrc||'',serviceSrc:x.serviceSrc||'',extraSrc:x.extraSrc||'',verified:x.verified||'',goshuin:/寺|神社|神宮|稲荷|稻荷|大社/.test(x.name)?'未確認':''};
-  if(typeof x.lat==='number'){d.lat=x.lat;d.lng=x.lng;}if(!d.region)d.region=regionOf(d);places.push(d);n++;if(typeof d.lat!=='number')geocode(d);});
- save();render();dlg.close('saved');if(n)alert('已加入 '+n+' 個地點');};
+ var added=[];autoRes.forEach(function(x,i){if(!L.querySelector('[data-ai="'+i+'"]').checked)return;var d={id:'p'+t+'_'+i,name:x.name,address:x.address==='未確認'?'':(x.address||''),note:x.note||'',category:L.querySelector('[data-ac="'+i+'"]').value,region:(L.querySelector('[data-ar="'+i+'"]').value||'').trim(),sourceUrl:x.sourceUrl||'',sourceTitle:x.sourceTitle||'',author:x.author||'',link:x.link||'',hours:x.hours||'未確認',closed:x.closed||'未確認',service:x.service||'未確認',extra:x.extra||'',hoursSrc:x.hoursSrc||'',closedSrc:x.closedSrc||'',serviceSrc:x.serviceSrc||'',extraSrc:x.extraSrc||'',verified:x.verified||'',goshuin:/寺|神社|神宮|稲荷|稻荷|大社/.test(x.name)?'未確認':''};
+  if(typeof x.lat==='number'){d.lat=x.lat;d.lng=x.lng;}if(!d.region)d.region=regionOf(d);places.push(d);added.push(d);n++;if(typeof d.lat!=='number')geocode(d);});
+ save();render();dlg.close('saved');queueP(added);if(n)alert('已加入 '+n+' 個地點，店家資訊會在背景自動查詢');};
 dlg.addEventListener('close',function(){if(dlg.returnValue!=='ok')return;
  var d={};['link','name','address','note','category','region','sourceUrl','sourceTitle','author','hours','closed','service','goshuin'].forEach(function(k){d[k]=(fm.elements[k].value||'').trim();});
  var m=d.link.match(/https?:\/\/\S+/);d.link=m?m[0]:'';
@@ -236,13 +236,31 @@ dlg.addEventListener('close',function(){if(dlg.returnValue!=='ok')return;
  if(!d.name)d.name=d.address||'Google 地圖地點';
  if(fm.elements.catSel.value!=='__custom')d.category=fm.elements.catSel.value;else if(!d.category)d.category='未分類';
  if(!d.region)d.region=regionOf(d);
- d.id='p'+Date.now();places.push(d);save();render();geocode(d);});
+ d.id='p'+Date.now();places.push(d);save();render();geocode(d);queueP([d]);});
 
 var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#4285f4"/><text x="90" y="122" font-size="100" text-anchor="middle">📍</text></svg>';
 var icon='data:image/svg+xml,'+encodeURIComponent(svg);document.getElementById('ati').href=icon;
 var man={name:'地點按鈕',short_name:'地點按鈕',start_url:location.href.split('#')[0],display:'standalone',background_color:'#111318',theme_color:'#111318',icons:[{src:icon,sizes:'180x180',type:'image/svg+xml'}]};
 document.getElementById('mf').href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(man));
+function queueP(arr){if(!RESOLVER_URL||!arr.length)return;
+ var body=arr.map(function(p){return{id:p.id,name:p.name,address:p.address||'',link:url(p),lat:typeof p.lat==='number'?p.lat:null,lng:typeof p.lng==='number'?p.lng:null,category:p.category||'',sourceUrl:p.sourceUrl||'',sourceTitle:p.sourceTitle||''};});
+ fetch(RESOLVER_URL+'queue',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();}).then(function(o){if(o.ok){arr.forEach(function(p){p.queued=new Date().toISOString();});save();render();}}).catch(function(){});}
+var UNK=/^\s*$|未確認|未填/;
+function pullEnrich(){if(!RESOLVER_URL)return;var mine=places.filter(function(p){return /^[pi]/.test(p.id)&&!p.enrichedAt;});
+ if(mine.some(function(p){return !p.queued;}))queueP(mine.filter(function(p){return !p.queued;}));
+ if(!mine.length)return;
+ fetch(RESOLVER_URL+'enrich?ids='+encodeURIComponent(mine.map(function(p){return p.id;}).slice(0,50).join(','))).then(function(r){return r.json();}).then(function(o){var ch=0;
+  mine.forEach(function(p){var e=o.enrich&&o.enrich[p.id];if(!e)return;ch++;
+   ['hours','closed','service','goshuin','address'].forEach(function(f){if(e[f]&&UNK.test(p[f]||''))p[f]=e[f];});
+   ['extra','reviews','verified','hoursSrc','closedSrc','serviceSrc','extraSrc','reviewsSrc'].forEach(function(f){if(e[f])p[f]=e[f];});
+   if(e.note&&(p.note||'').indexOf(e.note)<0)p.note=p.note?p.note+'・'+e.note:e.note;
+   if(typeof e.lat==='number'&&typeof p.lat!=='number'){p.lat=e.lat;p.lng=e.lng;}
+   if(e.link&&!/cid=/.test(p.link||''))p.link=e.link;
+   p.enrichedAt=e.enrichedAt;});
+  if(ch){save();render();}}).catch(function(){});}
+document.addEventListener('visibilitychange',function(){if(!document.hidden)pullEnrich();});
 render();
+pullEnrich();
 if(navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'geolocation'}).then(function(st){if(st.state==='granted')locateQuiet();}).catch(function(){});}
 places.forEach(geocode);
 })();

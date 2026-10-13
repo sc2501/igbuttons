@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="原來...這間...我有...看過">
+<meta name="theme-color" content="#111318">
+<title>原來...這間...我有...看過</title>
+<link rel="icon" href="favicon.png"><link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" id="ati">
+<link rel="manifest" id="mf">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111318;color:#e8eaed;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;padding:env(safe-area-inset-top) 14px 90px}
+h1{font-size:22px;margin:14px 0 8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 10px}
+.chip{flex:none;border:1px solid #3c4048;background:#1c1f26;color:#e8eaed;border-radius:18px;padding:7px 14px;font-size:14px}
+.chip.on{background:#4285f4;border-color:#4285f4;color:#fff}
+.post{background:#1a1d24;border-radius:14px;padding:12px;margin:12px 0}
+.post h2{font-size:16px;margin:0 0 2px}.post .meta{font-size:13px;color:#9aa0a6;margin-bottom:10px}
+.post a{color:#8ab4f8}
+.place{display:flex;gap:8px;margin:8px 0}
+.go{flex:1;display:block;text-decoration:none;background:#263045;color:#fff;border-radius:12px;padding:14px;min-height:64px}
+.go:active{background:#34518a}.go b{font-size:17px;display:block}.go small{color:#aab;font-size:13px;display:block;margin-top:3px}
+.go .tag{display:inline-block;background:#4285f4;color:#fff;border-radius:8px;padding:1px 7px;font-size:11px;margin-left:6px;vertical-align:middle}
+.del{flex:none;width:44px;background:#3a2226;color:#f28b82;border:0;border-radius:12px;font-size:18px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#1c1f26;display:flex;gap:6px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #2c3038}
+.bar button,.bar label{flex:1;background:#2c3038;color:#e8eaed;border:0;border-radius:10px;padding:11px 4px;font-size:14px;text-align:center}
+.bar .pri{background:#4285f4;color:#fff}
+dialog{background:#1c1f26;color:#e8eaed;border:0;border-radius:16px;width:92vw;max-width:440px}
+dialog input,dialog textarea,dialog select{width:100%;background:#111318;color:#e8eaed;border:1px solid #3c4048;border-radius:8px;padding:10px;font-size:16px;margin:4px 0 10px}
+dialog label{font-size:13px;color:#9aa0a6}
+.row{display:flex;gap:8px}.row button{flex:1;padding:12px;border:0;border-radius:10px;font-size:16px}
+.near{display:flex;align-items:center;gap:10px;margin:2px 0 6px;flex-wrap:wrap}.near input{flex:1;min-width:140px}.near .lbl{font-size:14px;color:#9aa0a6;min-width:52px}.msg{background:#2b2a1c;color:#fdd663;border-radius:10px;padding:10px;font-size:14px;margin:6px 0}.dist{color:#81c995!important;font-weight:600}
+.empty{color:#9aa0a6;text-align:center;margin-top:40px}
+</style>
+</head>
+<body>
+<h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1>
+<div class="chips" id="chips"></div>
+<div class="chips" id="regs"></div>
+<div class="near"><button class="chip" id="nearBtn">📏 離我多遠</button><input type="range" id="rad" min="0" max="4" step="1" value="2" aria-label="範圍"><span class="lbl" id="radLbl">1 km</span></div>
+<div id="msg"></div>
+<div id="list"></div>
+<div class="bar">
+<button class="pri" id="addBtn">＋ 新增</button>
+<label>匯入<input type="file" id="imp" accept=".csv,.json,text/csv,application/json" hidden></label>
+<button id="expBtn">匯出</button>
+<details style="font-size:13px;color:#9aa0a6;margin:6px 0"><summary>📦 從舊網址搬資料</summary>在舊網址 deluxe-zuccutto-79cb0f.netlify.app 按「匯出」存下 JSON 檔，再回到這裡按「匯入」選那個檔案。你自己新增的地點、座標、營業時間、地區都會一起搬過來，重複的會自動略過。</details>
+</div>
+<dialog id="dlg"><form method="dialog" id="fm">
+<h3 style="margin-top:0">新增地點</h3>
+<label>貼上連結（IG 貼文／Reels、Google 地圖地點或清單、網頁）</label><input name="auto" inputmode="url" placeholder="https://…">
+<div class="row"><button type="button" id="autoGo" style="background:#4285f4;color:#fff">🔍 判讀連結</button></div>
+<div id="autoMsg" style="font-size:13px;color:#9aa0a6;margin:6px 0"></div>
+<div id="autoList"></div>
+<div class="row" id="autoSaveRow" style="display:none;margin:8px 0"><button type="button" id="autoSave" style="background:#34a853;color:#fff">＋ 加入勾選的地點</button></div>
+<details id="manual"><summary style="cursor:pointer;color:#9aa0a6;margin:8px 0">✏️ 手動輸入</summary>
+<label>Google 地圖分享連結（選填，例如 https://maps.app.goo.gl/…）</label><input name="link" inputmode="url">
+<label>名稱</label><input name="name">
+<label>地址</label><input name="address">
+<label>備註</label><input name="note">
+<label>地區（留空自動判斷）</label><input name="region" placeholder="例如 台灣、東京、大阪">
+<label>分類</label><select name="catSel" onchange="this.form.elements.category.style.display=this.value==='__custom'?'block':'none'"><option>觀光景點</option><option>餐廳</option><option>飲料店</option><option>咖啡廳</option><option value="__custom">自訂…</option></select><input name="category" placeholder="輸入自訂分類" style="display:none">
+<label>來源貼文網址</label><input name="sourceUrl" inputmode="url">
+<label>營業時間</label><input name="hours" placeholder="例如 11:00–20:00">
+<label>公休</label><input name="closed" placeholder="例如 週一">
+<label>內用／外帶</label><select name="service"><option value="">未填</option><option>內用</option><option>只外帶</option><option>內用・外帶</option><option>未確認</option></select>
+<label>御朱印／御守時間（寺社用）</label><input name="goshuin">
+<label>來源標題</label><input name="sourceTitle">
+<label>作者</label><input name="author">
+</details>
+<div class="row"><button value="cancel" formnovalidate>取消</button><button value="ok" style="background:#4285f4;color:#fff">儲存手動輸入</button></div>
+</form></dialog>
+<script>
+// 連結判讀服務（Cloudflare Worker）網址，部署後填入
+var RESOLVER_URL='';
+
+(function(){
+var KEY='igbuttons.places.v1';
+var SRC='https://www.instagram.com/reel/DeRZ8a5R8ef/',T='東京5間很有特色御守跟御朱印神社',A='@shinlii';
+var seed=[['感通寺','東京都新宿区喜久井町39',35.7034045,139.7210353],['法輪寺','東京都新宿区西早稲田1-1-15',35.7072876,139.71889],['妙義神社','東京都豊島区駒込3-16-16',35.7386161,139.7450591],['飛木稲荷神社','東京都墨田区押上2-39-6',35.7140645,139.8153596],['日枝神社','東京都千代田区永田町2-10-5',35.674685,139.7398822]]
+ .map(function(p,i){return{id:'s'+i,name:p[0],address:p[1],note:'',category:'觀光景點',lat:p[2],lng:p[3],sourceUrl:SRC,sourceTitle:T,author:A,link:''};});
+seed.push({id:'h0',name:'法輪寺',address:'東京都新宿区西早稲田1-1-15',note:'彼岸花 華輝守り（1,300円）・切り絵御朱印',category:'觀光景點',lat:35.7072876,lng:139.71889,sourceUrl:'https://www.instagram.com/p/DdQvDgppHQC/',sourceTitle:'法輪寺 彼岸花の華輝守り（かがやきまもり）',author:'@hourinji',link:''});
+seed.push({id:'w0',name:'新宿焼肉 牛たんの檸檬 総本店',address:'東京都新宿区西新宿7-16-12 YSビル B1F',note:'牛舌套餐（貼文說約台幣556）；舊址西新宿7-15-15已遷移',category:'餐廳',lat:35.69615,lng:139.697871,sourceUrl:'https://www.instagram.com/reel/CwaVsbJt62L/',sourceTitle:'東京必吃 高品質牛舌套餐（牛たんの檸檬）',author:'@waner_jp',link:''});
+seed.push({id:'g0',name:'再睡5分鐘 台北吳興店',address:'臺北市信義區吳興街53號1樓',note:'手搖飲料店',category:'飲料店',lat:25.0309917,lng:121.560371,sourceUrl:'',sourceTitle:'Google 地圖分享',author:'',link:'https://maps.app.goo.gl/wqjfGFpQNDkiZ9Gj8?g_st=ic'});
+seed.push({id:'g1',name:'宸酌咖啡',address:'臺北市信義區光復南路449之1號',note:'虹吸咖啡・高山茶・精釀啤酒，週一公休',category:'咖啡廳',lat:25.0349668,lng:121.5577857,sourceUrl:'',sourceTitle:'Google 地圖分享',author:'',link:'https://maps.app.goo.gl/Cw2R7nwY8mWCprXx8?g_st=ic'});
+seed.push({id:'r0',name:'淀川つつみ市 ミナモ十三（屋台エリア）',address:'大阪府大阪市淀川区十三東1丁目地先',note:'淀川河川敷屋台村・可看夜景；阪急十三駅徒步約5分',category:'餐廳',lat:34.718521,lng:135.4871577,sourceUrl:'https://www.instagram.com/reel/DeEjOrfNMCv/',sourceTitle:'大阪夜景神秘景點：ミナモ十三 屋台',author:'@roy_letsgo',link:''});
+seed.push({id:'c0',name:'豆皮壽司老店 味吟',address:'東京都墨田区業平2-14-6',note:'稲荷寿司・鉄火巻，只能外帶；晴空塔步行約5分；週一二公休',category:'餐廳',lat:35.7088366,lng:139.8124124,sourceUrl:'https://www.instagram.com/reel/DdTwJvSyovL/',sourceTitle:'東京全家都愛的豆皮壽司老店',author:'@clinaliu',link:''});
+seed.push({id:'l0',name:'LOCUST（ローカスト）イオンモール日根野店',address:'大阪府泉佐野市日根野2496-1 イオンモール日根野2階',note:'オフプライスストア（名牌服飾・雜貨折扣店）；JR日根野駅；電話 072-479-4056',category:'購物',region:'大阪',lat:34.3926279,lng:135.333118,sourceUrl:'https://www.instagram.com/reel/DbMensCBFl8/',sourceTitle:'イオンモール日根野の話題のお店 ローカスト',author:'@locust_sakura',link:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('ローカスト イオンモール日根野店'),hours:'每日 10:00–21:00',closed:'依商場公休（未確認）',service:'',goshuin:'',verified:'2026-10-13 LOCUST官網・イオンモール日根野官網（可信度：高）'});
+seed=seed.concat([{"id": "k0", "name": "溫咖哩 Wen Curry", "address": "臺北市中正區濟南路二段3之8號", "note": "用餐80分鐘・低消每人一份套餐・收10%服務費", "category": "餐廳", "lat": 25.0416068, "lng": 121.5269461, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=6401263394345793616", "hours": "每日 11:30–14:00、17:30–21:00", "closed": "無固定公休", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 台北咖哩協會・愛食記・WalkerLand（可信度：高）"}, {"id": "k1", "name": "吉松和漢日本料理", "address": "臺北市中山區中山北路二段50巷15號", "note": "", "category": "餐廳", "lat": 25.0563053, "lng": 121.5216777, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=9663858951140111625", "hours": "11:30–14:00、17:00–21:00", "closed": "無固定公休（未確認）", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 官網 yoshimatsu.tw・footinder（可信度：高）"}, {"id": "k2", "name": "農粹日式咖哩 長安店", "address": "臺北市大同區長安西路78巷4弄2之1號", "note": "", "category": "餐廳", "lat": 25.0498089, "lng": 121.5190076, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=4919803804826489253", "hours": "每日 11:30–14:30、17:00–20:00", "closed": "無固定公休（未確認）", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 愛食記・Jeremy以食為天（可信度：高）"}, {"id": "k3", "name": "Curry 77", "address": "臺北市大同區西寧北路77號", "note": "無電話", "category": "餐廳", "lat": 25.0554065, "lng": 121.5091058, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=14107986403093788727", "hours": "每日 11:30–19:30（售完提前打烊）", "closed": "每月25日至月底休息", "service": "內用（騎樓戶外座位）", "goshuin": "", "verified": "2026-10-12 30Select・大妹食旅・食尚玩家（可信度：高）"}, {"id": "k4", "name": "笑貓咖哩-承德店 | 創作香料咖哩專門店｜スパイスカレー｜xiaomaocurry ｜spice curry", "address": "臺北市大同區承德路一段24巷18號", "note": "", "category": "餐廳", "lat": 25.0505766, "lng": 121.5161057, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=441553308145770101", "hours": "週三至週日 11:00–20:30", "closed": "週一、週二", "service": "內用・外帶・外送", "goshuin": "", "verified": "2026-10-12 官網 xiaomao.com.tw（可信度：高）"}, {"id": "k5", "name": "野毛洋食屋 『日式咖哩/漢堡排/蛋包飯』", "address": "臺北市中山區八德路二段327號1樓", "note": "", "category": "餐廳", "lat": 25.0474935, "lng": 121.5431873, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=7361906005405646356", "hours": "週一至週五 11:30–13:45；週六日 12:30–14:30（只查到午餐時段，晚餐未確認）", "closed": "未確認", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 exa 地點資料・部落格（可信度：低）"}, {"id": "k6", "name": "Curry Lab. Tokyo", "address": "臺北市大安區（大安店，門牌未確認）", "note": "", "category": "餐廳", "lat": 25.0242205, "lng": 121.5312499, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=2204171077572639018", "hours": "週一至週六 11:00–21:00", "closed": "週日", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 exa 地點資料（可信度：中）"}, {"id": "k7", "name": "Curry For Peace", "address": "臺北市信義區光復南路519巷7號", "note": "", "category": "餐廳", "lat": 25.0319536, "lng": 121.5579969, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=2407511614074522916", "hours": "平日 11:00–14:30、17:30–20:30；週六日 12:30–15:00、17:30–20:30", "closed": "週二（只有一個來源）", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 GOMAJI・J'STUDY・restaurantguru（可信度：中）"}, {"id": "k8", "name": "巫婆咖喱", "address": "新北市中和區景新街41巷1號", "note": "", "category": "餐廳", "lat": 24.9992425, "lng": 121.5041174, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=4966127544095774463", "hours": "11:00–20:00", "closed": "週二", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 buzzdaily・restaurantguru（可信度：中）"}, {"id": "k9", "name": "烏哩 日式黑咖哩專賣", "address": "新北市永和區信義路56號", "note": "", "category": "餐廳", "lat": 25.012604, "lng": 121.5131678, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=3029412009949405216", "hours": "平日 11:30–14:30、17:00–20:30；週六日 11:30–20:30", "closed": "無公休", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 RLai Diary・嗨放・exa（可信度：中）"}, {"id": "k10", "name": "田樂咖哩", "address": "臺北市大安區臨江街40巷11號", "note": "", "category": "餐廳", "lat": 25.0292663, "lng": 121.5562347, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=10939389524448742173", "hours": "週一至週六 12:00–14:00、18:00–22:00", "closed": "週日", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 輕旅行・北台灣美食搜查隊（資料較舊）（可信度：低）"}, {"id": "k11", "name": "小吉咖哩 八德店", "address": "臺北市松山區八德路三段158巷20弄1之1號", "note": "", "category": "餐廳", "lat": 25.0472541, "lng": 121.5551145, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=7064694580176063980", "hours": "週一至週五 11:00–20:00", "closed": "週六、週日", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 exa・FunNow（可信度：中）"}, {"id": "k12", "name": "十巷咖哩", "address": "臺北市中山區雙城街10巷25之1號", "note": "", "category": "餐廳", "lat": 25.0641944, "lng": 121.5236697, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=13804380331441189213", "hours": "每日 11:30–21:30", "closed": "無固定公休（國定假日可能休）", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 食尚玩家・AutoReserve（可信度：中）"}, {"id": "k13", "name": "艷紅酒咖喱", "address": "新北市永和區永利路108號1樓", "note": "每日限量", "category": "餐廳", "lat": 25.0033409, "lng": 121.5212282, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=12934797358567490785", "hours": "週一至週四 17:30–20:30；週五至週日 11:30–14:00、17:30–20:30", "closed": "無公休", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 葉影瓶像・restaurantguru（可信度：中）"}, {"id": "k14", "name": "農粹日式咖哩 西門店", "address": "臺北市萬華區開封街二段30號", "note": "", "category": "餐廳", "lat": 25.0461661, "lng": 121.5082639, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=13969045546242110679", "hours": "每日 11:30–15:30、17:00–19:30", "closed": "無固定公休（未確認）", "service": "外帶・外送為主（內用未確認）", "goshuin": "", "verified": "2026-10-12 fonfood・foodpanda・donna.tw（可信度：中）"}, {"id": "k15", "name": "農粹日式咖哩 / 漫拾泡芙", "address": "臺北市大安區信義路四段30巷3號", "note": "附設漫拾泡芙", "category": "餐廳", "lat": 25.0329083, "lng": 121.5446919, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=12381283617554219835", "hours": "週一至週六 11:30–14:00、16:00–20:00", "closed": "週日", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 foodpanda・AutoReserve・愛食記（可信度：高）"}, {"id": "k16", "name": "新高軒信義店(A11-B2)", "address": "臺北市信義區松壽路11號 新光三越信義新天地A11 B2", "note": "", "category": "餐廳", "lat": 25.0367098, "lng": 121.567279, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=2673764483356965976", "hours": "11:00–21:00（依百貨營業時間）", "closed": "依百貨公休", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 新光三越訂位頁・愛食記（可信度：高）"}, {"id": "k17", "name": "新高軒", "address": "臺北市大安區市民大道四段8號", "note": "", "category": "餐廳", "lat": 25.0446906, "lng": 121.5443073, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=13703619839748558746", "hours": "每日 12:00–14:00、17:30–21:00（晚餐另一說18:00起）", "closed": "無公休", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 愛食記・台北咖哩協會・MENU美食誌（可信度：中）"}, {"id": "k18", "name": "新高軒北車店", "address": "臺北市中正區北平西路3號2樓（微風台北車站）", "note": "", "category": "餐廳", "lat": 25.0481159, "lng": 121.5169048, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=1637146240891742126", "hours": "10:00–22:00（依商場時間）", "closed": "依商場公休", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 愛食記・exa（可信度：中）"}, {"id": "k19", "name": "朱雀 𝑺𝑼𝒁𝑨𝑲𝑼 𝑪𝑼𝑹𝑹𝒀 𝑺𝑯𝑶𝑷", "address": "臺北市中正區武昌街一段16巷2號1樓", "note": "不提供訂位，現場候位", "category": "餐廳", "lat": 25.0437509, "lng": 121.512554, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=17191473614876386940", "hours": "每日 11:30–20:00", "closed": "無公休", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 愛食記・Threads・GQ（可信度：中）"}, {"id": "k20", "name": "羅本家咖哩大同店（恕不接受訂位）", "address": "臺北市大同區長安西路138巷3弄2號", "note": "不接受訂位，現場候位", "category": "餐廳", "lat": 25.0502176, "lng": 121.5176878, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=16665482454662507576", "hours": "11:30–14:30、17:00–20:30", "closed": "週日", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 平心而論・趙先生吃飯（可信度：高）"}, {"id": "k21", "name": "稲町家香料咖哩 中山本舖(中山運動中心旁)", "address": "臺北市中山區中山北路二段42巷20號", "note": "", "category": "餐廳", "lat": 25.0545157, "lng": 121.5215196, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=15518994772843447362", "hours": "每日 12:00–16:00、17:30–21:00", "closed": "不固定（看IG公告）", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 Jeremy以食為天・愛食記（可信度：中）"}, {"id": "k22", "name": "利庵咖哩 景美店 - 台北人氣漢堡排咖哩店 - 香料歐風咖哩 寵物友善 現金only", "address": "臺北市文山區景興路282巷3號", "note": "只收現金・每日限量・寵物友善", "category": "餐廳", "lat": 24.9896047, "lng": 121.5420745, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=5811498370699764926", "hours": "週二至週五 11:20–14:30、17:00–20:00；週六日 11:00–15:00、17:00–20:00", "closed": "週一", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 鄉民食堂・PopDaily（可信度：高）"}, {"id": "k23", "name": "通庵 熟成咖哩 中山店", "address": "臺北市中山區中山北路二段77巷3號", "note": "", "category": "餐廳", "lat": 25.0576206, "lng": 121.5232335, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=15854416181781821685", "hours": "11:30–14:30、17:00–20:00", "closed": "週四", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 fonfood・食尚玩家（可信度：中）"}, {"id": "k24", "name": "通庵 熟成咖哩 雙和店", "address": "新北市中和區中安街48號1樓", "note": "", "category": "餐廳", "lat": 25.002601, "lng": 121.5127714, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=4719351663621850073", "hours": "12:00–14:30、17:00–20:30", "closed": "週二", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 fonfood（可信度：中）"}, {"id": "k25", "name": "通庵 熟成咖哩", "address": "臺北市大安區通安街115號（創始店）", "note": "", "category": "餐廳", "lat": 25.0297109, "lng": 121.5531647, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=784616910595723607", "hours": "11:30–14:30、17:00–20:00", "closed": "週一", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 台北咖哩協會・山姆大叔（可信度：中）"}, {"id": "k26", "name": "佐藤咖哩 復興店", "address": "臺北市大安區復興南路一段92之1號", "note": "", "category": "餐廳", "lat": 25.0435349, "lng": 121.5434695, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=6865186108294082278", "hours": "11:30–14:30、17:30–21:00", "closed": "無公休", "service": "內用（內用加醬免費）", "goshuin": "", "verified": "2026-10-12 misoway・MetroBites（可信度：中）"}, {"id": "k27", "name": "佐藤咖哩 西門店", "address": "臺北市萬華區成都路27巷15號", "note": "", "category": "餐廳", "lat": 25.043107, "lng": 121.506914, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=1297186062339185484", "hours": "平日 17:00–21:30；週六日 12:00–14:30、17:00–21:30", "closed": "無固定公休（未確認）", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 fonfood（可信度：低）"}, {"id": "k28", "name": "稲町家香料咖哩 南西二號舖(三越南西一館後方)", "address": "臺北市中山區中山北路一段140巷17號", "note": "", "category": "餐廳", "lat": 25.0515037, "lng": 121.5213551, "sourceUrl": "https://maps.app.goo.gl/Kdmr6Fy3EMQc2BmF9", "sourceTitle": "咖哩拌飯（Google 地圖清單）", "author": "BS WU", "link": "https://maps.google.com/?cid=1143490282408956947", "hours": "每日 12:00–16:00、17:30–21:00", "closed": "不固定（看IG公告）", "service": "內用（外帶未確認）", "goshuin": "", "verified": "2026-10-12 Jeremy以食為天・遇見桃花源（可信度：中）"}]);
+var INFO={"s0": {"hours": "拜觀 7:00–17:00", "closed": "未確認", "service": "", "goshuin": "書置き：開門中隨時；直書き需電話預約（10–16時）", "verified": "2026-10-12 官網 kantsuji.tokyo・ホトカミ"}, "s1": {"hours": "開門 7:00–17:00（11–3月 7:30–16:30）", "closed": "無休", "service": "", "goshuin": "御朱印 9:00–12:30、13:00–16:00", "verified": "2026-10-12 るるぶ&more."}, "s2": {"hours": "參拜 24小時", "closed": "社務所週二、週三休（逢祝日・辰の日順延）", "service": "", "goshuin": "御守・御朱印 9:00–16:00（12–13時午休）", "verified": "2026-10-12 官網 myogi.tokyo・ホトカミ"}, "s3": {"hours": "境內自由參拜", "closed": "未確認", "service": "", "goshuin": "御朱印 9:00–16:00（另一說至17:00，以IG @tobikiinari 為準）", "verified": "2026-10-12 御朱印部落格（非官方）"}, "s4": {"hours": "開門 6:00–17:00", "closed": "無休（年末年始時間另訂）", "service": "", "goshuin": "授与所・朱印所 8:00–16:00", "verified": "2026-10-12 官網 hiejinja.net"}, "h0": {"hours": "開門 7:00–17:00（11–3月 7:30–16:30）", "closed": "無休", "service": "", "goshuin": "御朱印 9:00–12:30、13:00–16:00", "verified": "2026-10-12 るるぶ&more."}, "w0": {"hours": "11:30–15:00、17:00–22:00（L.O.21:00）；週五六至22:30（L.O.21:45）", "closed": "不定休", "service": "內用", "goshuin": "", "verified": "2026-10-12 食べログ・ヒトサラ"}, "g0": {"hours": "每日 11:05–19:30", "closed": "無（每日營業）", "service": "未確認", "goshuin": "", "verified": "2026-10-12 footinder（非官方）"}, "g1": {"hours": "11:00–22:00", "closed": "週一", "service": "內用", "goshuin": "", "verified": "2026-10-12 官網 chenjuocoffee.com"}, "r0": {"hours": "設施 9:00–23:00（週三 16:00–23:00）；各攤不同", "closed": "各攤不同", "service": "內用", "goshuin": "", "verified": "2026-10-12 happyell・官網 minamo-juso.com"}, "c0": {"hours": "週三–週日 8:30–15:00", "closed": "週一、週二", "service": "只外帶", "goshuin": "", "verified": "2026-10-12 boo2k.com（非官方）"}};
+seed.forEach(function(p){var x=INFO[p.id];if(x)for(var f in x)p[f]=x[f];});
+var places,filter='全部';
+try{places=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+if(!Array.isArray(places))places=seed.slice();
+else{var k=function(p){return [p.name,p.address,p.sourceUrl||''].join('|');},have={};places.forEach(function(p){have[k(p)]=1;});
+ var ids={};places.forEach(function(p){ids[p.id]=1;});
+ var sid={},sk={};seed.forEach(function(p){sid[p.id]=p;sk[k(p)]=p;});
+ places.forEach(function(p){var b=sid[p.id]||sk[k(p)];if(b&&(sid[p.id]?(k(p)===k(b)||(p.name===b.name&&(p.sourceUrl||'')===(b.sourceUrl||''))):true)){p.address=b.address;if(b.note!=null)p.note=b.note;p.category=b.category;p.lat=b.lat;p.lng=b.lng;if(b.link)p.link=b.link;['hours','closed','service','goshuin','verified'].forEach(function(f){if(b[f]!=null)p[f]=b[f];});}});
+ seed.forEach(function(p){if(!have[k(p)]&&!ids[p.id])places.push(p);});
+ try{localStorage.setItem(KEY,JSON.stringify(places));}catch(e){}}
+function save(){localStorage.setItem(KEY,JSON.stringify(places));}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function url(p){if(p.link&&/^https?:\/\//.test(p.link))return p.link;return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((p.name+' '+(p.address||'')).trim());}
+var region='全部地區',geoHint='';
+var JP={'東京都':'東京','大阪府':'大阪','京都府':'京都','北海道':'北海道'};
+function regionOf(p){if(p.region)return p.region;var a=(p.address||'')+' '+(p.name||'');
+ var m=a.match(/(東京都|北海道|大阪府|京都府|[^\s0-9〒、，,]{2,3}県)/);if(m&&!/[臺台]/.test(m[1]))return JP[m[1]]||m[1].replace(/県$/,'');
+ if(/[臺台](北|中|南|東)|新北|桃園|新竹|基隆|宜蘭|花蓮|屏東|嘉義|彰化|雲林|南投|苗栗|澎湖|金門|高雄|台灣|臺灣/.test(a))return '台灣';
+ if(/Tokyo|東京/i.test(a))return '東京';if(/Osaka|大阪/i.test(a))return '大阪';
+ if(typeof p.lat==='number'){var y=p.lat,x=p.lng;
+  if(y>21.8&&y<25.4&&x>119.2&&x<122.1)return '台灣';
+  if(y>35.5&&y<35.9&&x>139.2&&x<139.95)return '東京';if(y>34.27&&y<35.05&&x>135.1&&x<135.75)return '大阪';
+  if(y>24&&y<46&&x>122.9&&x<146)return '日本';}
+ if(/日本|Japan/i.test(a))return '日本';return '';}
+var near=false,me=null,geoMsg='',RADII=[100,500,1000,3000,5000];
+function fmtR(m){return m<1000?m+' m':(m/1000)+' km';}
+function fmtD(m){return m<1000?Math.round(m)+' m':(m/1000).toFixed(1)+' km';}
+function hav(a,p){var t=Math.PI/180,dl=(p.lat-a.lat)*t,dn=(p.lng-a.lng)*t,x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a.lat*t)*Math.cos(p.lat*t)*Math.sin(dn/2)*Math.sin(dn/2);return 12742000*Math.asin(Math.sqrt(x));}
+function locateQuiet(){if(!navigator.geolocation){geoHint='這個瀏覽器不支援定位，依原本順序排列。';render();return;}
+ navigator.geolocation.getCurrentPosition(function(pos){me={lat:pos.coords.latitude,lng:pos.coords.longitude};geoHint='';render();},
+ function(err){geoHint=err.code===1?'沒有定位權限，依原本順序排列（允許定位後會改成由近到遠）。':'暫時取得不到位置，依原本順序排列。';render();},{enableHighAccuracy:false,timeout:15000,maximumAge:120000});}
+function locate(){if(!navigator.geolocation){geoMsg='這個瀏覽器不支援定位功能。';render();return;}
+ geoMsg='';me=null;render();
+ navigator.geolocation.getCurrentPosition(function(pos){me={lat:pos.coords.latitude,lng:pos.coords.longitude};render();},
+ function(err){geoMsg=err.code===1?'沒有定位權限。請到「設定 › 隱私權 › 定位服務 › Safari 網站」允許使用位置，再按一次「📏 離我多遠」。':err.code===3?'定位逾時，請到訊號較好的地方再試一次。':'目前無法取得你的位置，請稍後再試。';render();},
+ {enableHighAccuracy:true,timeout:15000,maximumAge:60000});}
+var geoQ=[],geoBusy=false;
+function geocode(p){if(typeof p.lat==='number'||p.geoFail)return;geoQ.push(p);if(!geoBusy)geoNext();}
+function geoNext(){var p=geoQ.shift();if(!p){geoBusy=false;return;}geoBusy=true;
+ var q=(p.address||p.name||'').trim();if(!q){geoNext();return;}
+ fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=zh-TW&q='+encodeURIComponent(q)).then(function(r){return r.json();})
+ .then(function(j){if(j&&j[0]){p.lat=+j[0].lat;p.lng=+j[0].lon;}else p.geoFail=1;save();render();})
+ .catch(function(){}).then(function(){setTimeout(geoNext,1100);});}
+function info(p){var h='';
+ if(p.service==='只外帶')h+='<span class="tag" style="background:#e37400">🥡 只能外帶</span>';
+ var l='';if(p.hours)l+='<small>⏰ '+esc(p.hours)+'</small>';if(p.closed)l+='<small>🚫 公休：'+esc(p.closed)+'</small>';
+ if(p.goshuin)l+='<small>⛩️ 御朱印/御守：'+esc(p.goshuin)+'</small>';if(p.service&&p.service!=='只外帶')l+='<small>🍽️ '+esc(p.service)+'</small>';
+ if(p.verified)l+='<small style="opacity:.6">ℹ️ 資料：'+esc(p.verified)+'</small>';return [h,l];}
+function render(){
+ var cats=['全部','觀光景點','餐廳'];places.forEach(function(p){var c=p.category||'未分類';if(cats.indexOf(c)<0)cats.push(c);});
+ if(cats.indexOf(filter)<0)filter='全部';
+ document.getElementById('chips').innerHTML=cats.map(function(c){return '<button class="chip'+(c===filter?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>';}).join('');
+ var rs=[],rc={};places.forEach(function(p){var r=regionOf(p)||'未分地區';if(!rc[r]){rc[r]=0;rs.push(r);}rc[r]++;});
+ var pri=['台灣','東京','大阪','京都'];rs.sort(function(a,b){var x=pri.indexOf(a),y=pri.indexOf(b);x=x<0?(a==='未分地區'?99:50):x;y=y<0?(b==='未分地區'?99:50):y;return x-y||a.localeCompare(b);});
+ if(region!=='全部地區'&&!rc[region])region='全部地區';
+ document.getElementById('regs').innerHTML=rs.length>1?['全部地區'].concat(rs).map(function(r){return '<button class="chip'+(r===region?' on':'')+'" data-r="'+esc(r)+'">'+({'台灣':'🇹🇼','東京':'🗼','大阪':'🏯','京都':'⛩️','未分地區':'❔'}[r]||(r==='全部地區'?'🌏':'🗾'))+' '+esc(r)+(r==='全部地區'?'':' '+rc[r])+'</button>';}).join(''):'';
+ var vis=places.filter(function(p){return (filter==='全部'||(p.category||'未分類')===filter)&&(region==='全部地區'||(regionOf(p)||'未分地區')===region);});
+ var nb=document.getElementById('nearBtn'),mg=document.getElementById('msg');nb.className='chip'+(near?' on':'');mg.innerHTML='';
+ if(near){
+  if(!me){mg.innerHTML='<div class="msg">'+esc(geoMsg||'正在取得你的位置…')+'</div>';document.getElementById('list').innerHTML='';return;}
+  var R=RADII[+document.getElementById('rad').value],noC=0;
+  vis=vis.filter(function(p){if(typeof p.lat!=='number'){noC++;return false;}p._d=hav(me,p);return p._d<=R;}).sort(function(a,b){return a._d-b._d;});
+  if(!vis.length)mg.innerHTML='<div class="msg">'+esc(fmtR(R))+' 內沒有地點，試著把範圍拉大一點。'+(noC?'（有 '+noC+' 個地點沒有座標，無法計算距離）':'')+'</div>';
+  else if(noC)mg.innerHTML='<div class="msg">有 '+noC+' 個地點沒有座標，未列入附近結果。</div>';
+  document.getElementById('list').innerHTML='<div class="post">'+vis.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+   '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small class="dist">距離 '+esc(fmtD(p._d))+'</small><small>'+esc(p.address)+'</small>'+info(p)[1]+(p.sourceTitle?'<small>來源：'+esc(p.sourceTitle)+'</small>':'')+
+   '</a><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';
+  return;}
+ if(me){vis.forEach(function(p){p._d=typeof p.lat==='number'?hav(me,p):Infinity;});vis=vis.slice().sort(function(a,b){return a._d-b._d;});
+  document.getElementById('list').innerHTML=vis.length?'<div class="post"><div class="meta">由近到遠排列</div>'+vis.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+   '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small class="dist">'+(p._d<Infinity?'距離 '+esc(fmtD(p._d)):'距離未知（沒有座標）')+'</small><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+(p.sourceTitle?'<small>來源：'+esc(p.sourceTitle)+'</small>':'')+
+   '</a><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>':'<p class="empty">這個條件下沒有地點。</p>';return;}
+ if(geoHint)mg.innerHTML='<div class="msg">'+esc(geoHint)+'</div>';
+ var groups={},order=[];
+ vis.forEach(function(p){var k=p.sourceUrl||p.sourceTitle||'(無來源)';if(!groups[k]){groups[k]=[];order.push(k);}groups[k].push(p);});
+ var h=order.map(function(k){var g=groups[k],f=g[0];
+  return '<div class="post"><h2>'+esc(f.sourceTitle||'未命名來源')+'</h2><div class="meta">'+esc(f.author||'')+
+  (f.sourceUrl?' · <a href="'+esc(f.sourceUrl)+'" target="_blank" rel="noopener">開啟原貼文</a>':'')+'</div>'+
+  g.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+   '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+
+   '</a><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';}).join('');
+ document.getElementById('list').innerHTML=h||'<p class="empty">還沒有地點，按「＋ 新增」或「匯入」。</p>';
+}
+document.getElementById('nearBtn').onclick=function(){near=!near;if(near&&!me)locate();else render();};
+document.getElementById('rad').oninput=function(){document.getElementById('radLbl').textContent=fmtR(RADII[+this.value]);if(near)render();};
+document.getElementById('regs').onclick=function(e){var r=e.target.getAttribute('data-r');if(r!=null){region=r;render();}};
+document.getElementById('chips').onclick=function(e){var c=e.target.getAttribute('data-c');if(c!=null){filter=c;render();}};
+document.getElementById('list').onclick=function(e){var id=e.target.getAttribute('data-id');if(!id)return;
+ var p=places.find(function(x){return x.id===id;});if(p&&confirm('刪除「'+p.name+'」？')){places=places.filter(function(x){return x.id!==id;});save();render();}};
+var dlg=document.getElementById('dlg'),fm=document.getElementById('fm');
+document.getElementById('addBtn').onclick=function(){fm.reset();fm.elements.category.style.display='none';autoRes=[];document.getElementById('autoList').innerHTML='';document.getElementById('autoMsg').textContent='';document.getElementById('autoSaveRow').style.display='none';document.getElementById('manual').open=false;dlg.showModal();};
+var autoRes=[],CATS=['觀光景點','餐廳','飲料店','咖啡廳'];
+function dupOf(x){return places.find(function(p){return p.name===x.name&&((p.link&&p.link===x.link)||(p.address||'')===(x.address||'')||(p.sourceUrl||'')===(x.sourceUrl||''));});}
+document.getElementById('autoGo').onclick=function(){var v=(fm.elements.auto.value||'').trim(),msg=document.getElementById('autoMsg'),L=document.getElementById('autoList');
+ if(!/https?:\/\//.test(v)){msg.textContent='請貼上完整網址（https://…）';return;}
+ msg.textContent='讀取中…（清單或多個地點可能要 10–30 秒）';L.innerHTML='';document.getElementById('autoSaveRow').style.display='none';
+ if(!RESOLVER_URL){msg.textContent='連結判讀服務還在搬家中，暫時請用下方手動輸入。';document.getElementById('manual').open=true;return;}
+ fetch(RESOLVER_URL+'?url='+encodeURIComponent(v)).then(function(r){return r.json();}).then(function(o){
+  if(!o.ok){msg.textContent='讀取失敗：'+(o.error||'')+'。可以改用下方手動輸入。';document.getElementById('manual').open=true;return;}
+  autoRes=o.places||[];
+  if(!autoRes.length){msg.textContent='這個連結裡找不到明確的地點'+(o.title?'（'+o.title+'）':'')+'。可以用下方手動輸入。';var mf=fm.elements;mf.sourceUrl.value=v;mf.sourceTitle.value=o.title||'';mf.author.value=o.author||'';document.getElementById('manual').open=true;return;}
+  msg.textContent='找到 '+autoRes.length+' 個地點'+(o.title?'：'+o.title:'')+'。分類可以改，營業時間等查不到的都標「未確認」。';
+  L.innerHTML=autoRes.map(function(x,i){var d=dupOf(x);return '<div style="border:1px solid #3c4048;border-radius:8px;padding:8px;margin:6px 0"><label style="display:flex;gap:8px;align-items:center;color:#e8eaed;font-size:15px"><input type="checkbox" data-ai="'+i+'" '+(d?'':'checked')+' style="width:auto;margin:0"> <b>'+esc(x.name)+'</b></label><small style="display:block;color:#9aa0a6">'+esc(x.address||'')+(typeof x.lat==='number'?'':'（座標未確認）')+(x.note?'・'+esc(x.note):'')+(d?'・已在清單中':'')+'</small><select data-ac="'+i+'" style="margin:4px 0 0">'+CATS.concat(CATS.indexOf(x.category)<0?[x.category]:[]).map(function(c){return '<option'+(c===x.category?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select><input data-ar="'+i+'" value="'+esc(regionOf(x))+'" placeholder="地區" style="margin:4px 0 0"></div>';}).join('');
+  document.getElementById('autoSaveRow').style.display='flex';
+ }).catch(function(e){msg.textContent='連線失敗：'+e.message+'。可以改用下方手動輸入。';document.getElementById('manual').open=true;});};
+fm.elements.auto.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();document.getElementById('autoGo').click();}});
+document.getElementById('autoSave').onclick=function(){var L=document.getElementById('autoList'),n=0,t=Date.now();
+ autoRes.forEach(function(x,i){if(!L.querySelector('[data-ai="'+i+'"]').checked)return;var d={id:'p'+t+'_'+i,name:x.name,address:x.address==='未確認'?'':(x.address||''),note:x.note||'',category:L.querySelector('[data-ac="'+i+'"]').value,region:(L.querySelector('[data-ar="'+i+'"]').value||'').trim(),sourceUrl:x.sourceUrl||'',sourceTitle:x.sourceTitle||'',author:x.author||'',link:x.link||'',hours:x.hours||'未確認',closed:x.closed||'未確認',service:x.service||'未確認',goshuin:/寺|神社|神宮|稲荷|稻荷|大社/.test(x.name)?'未確認':''};
+  if(typeof x.lat==='number'){d.lat=x.lat;d.lng=x.lng;}if(!d.region)d.region=regionOf(d);places.push(d);n++;if(typeof d.lat!=='number')geocode(d);});
+ save();render();dlg.close('saved');if(n)alert('已加入 '+n+' 個地點');};
+dlg.addEventListener('close',function(){if(dlg.returnValue!=='ok')return;
+ var d={};['link','name','address','note','category','region','sourceUrl','sourceTitle','author','hours','closed','service','goshuin'].forEach(function(k){d[k]=(fm.elements[k].value||'').trim();});
+ var m=d.link.match(/https?:\/\/\S+/);d.link=m?m[0]:'';
+ if(!d.name&&!d.address&&!d.link){alert('請至少填名稱、地址或分享連結');return;}
+ if(!d.name)d.name=d.address||'Google 地圖地點';
+ if(fm.elements.catSel.value!=='__custom')d.category=fm.elements.catSel.value;else if(!d.category)d.category='未分類';
+ if(!d.region)d.region=regionOf(d);
+ d.id='p'+Date.now();places.push(d);save();render();geocode(d);});
+function parseCSV(t){var rows=[],r=[],f='',q=false;t=t.replace(/^\uFEFF/,'');
+ for(var i=0;i<t.length;i++){var c=t[i];
+  if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+  else if(c==='"')q=true;else if(c===','){r.push(f);f='';}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;r.push(f);rows.push(r);r=[];f='';}else f+=c;}
+ if(f||r.length){r.push(f);rows.push(r);}return rows.filter(function(x){return x.join('').trim();});}
+var alias={name:['name','名稱','地點'],address:['address','地址'],note:['note','備註','說明'],category:['category','分類'],sourceUrl:['sourceurl','source','來源','來源網址'],sourceTitle:['sourcetitle','標題','來源標題'],author:['author','作者'],link:['link','maps','分享連結','google地圖連結']};
+function norm(o){var n={};Object.keys(alias).forEach(function(k){for(var key in o){if(alias[k].indexOf(String(key).trim().toLowerCase())>=0){n[k]=String(o[key]||'').trim();break;}}n[k]=n[k]||'';});return n;}
+document.getElementById('imp').onchange=function(e){var file=e.target.files[0];if(!file)return;var rd=new FileReader();
+ rd.onload=function(){var arr=[];try{
+  if(/\.json$/i.test(file.name)||/^\s*[\[{]/.test(rd.result)){var j=JSON.parse(rd.result);arr=Array.isArray(j)?j:(j.places||[]);}
+  else{var rows=parseCSV(rd.result),hd=rows.shift();arr=rows.map(function(r){var o={};hd.forEach(function(h,i){o[h]=r[i];});return o;});}
+ }catch(err){alert('匯入失敗：'+err.message);return;}
+ var n=0,sk=0;arr.forEach(function(o,i){var p;
+  if(o&&o.id&&(o.lat!=null||o.hours!=null||o.region!=null||o.category!=null)&&o.name){p=JSON.parse(JSON.stringify(o));delete p._d;
+   if(places.some(function(x){return x.id===p.id||(x.name===p.name&&(x.address||'')===(p.address||'')&&(x.sourceUrl||'')===(p.sourceUrl||''));})){sk++;return;}}
+  else{p=norm(o);if(!p.name&&!p.address&&!p.link)return;if(!p.name)p.name=p.address;p.id='i'+Date.now()+'_'+i;}
+  places.push(p);n++;if(typeof p.lat!=='number')geocode(p);});
+ save();render();alert('已匯入 '+n+' 個地點'+(sk?'（'+sk+' 個已存在，略過）':''));e.target.value='';};rd.readAsText(file);};
+document.getElementById('expBtn').onclick=function(){var b=new Blob([JSON.stringify(places,null,2)],{type:'application/json'});
+ var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='places-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();};
+var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="#4285f4"/><text x="90" y="122" font-size="100" text-anchor="middle">📍</text></svg>';
+var icon='data:image/svg+xml,'+encodeURIComponent(svg);document.getElementById('ati').href=icon;
+var man={name:'地點按鈕',short_name:'地點按鈕',start_url:location.href.split('#')[0],display:'standalone',background_color:'#111318',theme_color:'#111318',icons:[{src:icon,sizes:'180x180',type:'image/svg+xml'}]};
+document.getElementById('mf').href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(man));
+render();
+locateQuiet();
+places.forEach(geocode);
+})();
+</script>
+</body>
+</html>

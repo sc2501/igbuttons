@@ -36,7 +36,7 @@ dialog label{font-size:13px;color:#9aa0a6}
 .pill{display:flex;align-items:center;gap:8px;flex:1;background:#2c3038;border:1px solid #3c4048;border-radius:999px;padding:4px 12px 4px 4px}.pill.on{background:#1e3a5f;border-color:#4285f4}.pill button{background:#3c4048;color:#e8eaed;border:0;border-radius:999px;padding:8px 12px;font-size:14px;white-space:nowrap}.pill.on button{background:#4285f4;color:#fff}.pill input{flex:1;min-width:90px;accent-color:#4285f4}.pill span{font-size:14px;color:#e8eaed;min-width:46px;text-align:right}
 .near{display:flex;align-items:center;gap:10px;margin:2px 0 6px;flex-wrap:wrap}.near input{flex:1;min-width:140px}.near .lbl{font-size:14px;color:#9aa0a6;min-width:52px}.msg{background:#2b2a1c;color:#fdd663;border-radius:10px;padding:10px;font-size:14px;margin:6px 0}.dist{color:#81c995!important;font-weight:600}
 
-.top{display:flex;align-items:center;gap:8px}.top h1{flex:1;font-size:19px}
+.top{display:flex;align-items:center;gap:8px}.top h1{flex:1;min-width:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rbtn{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid #3c4048;background:#1c1f26;color:#e8eaed;font-size:20px;line-height:1}.rbtn.pri{background:#4285f4;border-color:#4285f4;color:#fff;font-size:26px}
 body{padding-bottom:30px}
 .fbtn{flex:none;width:44px;background:#2a2f3a;color:#e8eaed;border:0;border-radius:12px;font-size:17px}
@@ -77,11 +77,21 @@ body{padding-bottom:30px}
 body.fopen #ftab{display:none}
 #fold.drag{transition:none}
 #list{margin-right:22px}
+#selBar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:none;gap:6px;align-items:center;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:#1c1f26f2;border-top:1px solid #2c3038}
+body.selmode #selBar{display:flex}body.selmode{padding-bottom:90px}body.selmode #ftab{display:none}
+#selBar span{flex:none;font-size:14px;color:#8ab4f8;min-width:56px}#selBar button{flex:1;border:0;border-radius:10px;padding:11px 4px;font-size:14px;background:#2c3038;color:#e8eaed}#selBar .pri{background:#4285f4;color:#fff}#selBar button:disabled{opacity:.45}
+body.selmode .place[data-pid]{position:relative}body.selmode .place[data-pid] .go{padding-left:50px}
+body.selmode .place[data-pid]::before{content:"";position:absolute;left:14px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:2px solid #9aa0a6;z-index:2;pointer-events:none}
+body.selmode .place.sel::before{background:#4285f4;border-color:#4285f4}
+body.selmode .place.sel::after{content:"✓";position:absolute;left:20px;top:50%;transform:translateY(-52%);color:#fff;font-weight:700;font-size:15px;z-index:3;pointer-events:none}
+body.selmode .place.sel .go{background:#1e3a5f}
+#selBtn.on{background:#4285f4;border-color:#4285f4}
+#ghost .badge{display:inline-block;background:#f28b82;color:#111;border-radius:10px;padding:0 7px;margin-left:6px;font-size:13px}
 .empty{color:#9aa0a6;text-align:center;margin-top:40px}
 </style>
 </head>
 <body>
-<header class="top"><h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1><button class="rbtn" id="foldBtn" aria-label="資料夾">📁</button><button class="rbtn pri" id="addBtn" aria-label="新增">＋</button></header>
+<header class="top"><h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1><button class="rbtn" id="selBtn" aria-label="選取">☑︎</button><button class="rbtn" id="foldBtn" aria-label="資料夾">📁</button><button class="rbtn pri" id="addBtn" aria-label="新增">＋</button></header>
 <div class="chips" id="chips"></div>
 <div class="chips" id="regs"></div>
 <div class="near"><div class="pill" id="pill"><button type="button" id="nearBtn">📏 離我多遠</button><input type="range" id="rad" min="0" max="4" step="1" value="2" aria-label="距離範圍"><span id="radLbl">1 km</span></div></div>
@@ -92,6 +102,7 @@ body.fopen #ftab{display:none}
 <div id="fold"><div class="fhead"><button class="cbtn" id="foldBack" aria-label="返回">‹</button><h2>資料夾</h2><span style="width:44px"></span></div>
 <div id="fstack"></div><button id="fFab" aria-label="新增資料夾">＋</button>
 <div id="fview"><div class="fhead" style="padding-left:0;padding-right:0"><button class="cbtn" id="fvBack" aria-label="返回">‹</button><h2 id="fvTitle" style="font-size:20px"></h2><button class="cbtn" id="fvMenu" aria-label="資料夾選項">⋯</button></div><div id="fvList"></div></div></div>
+<div id="selBar"><span id="selCnt">已選 0</span><button type="button" id="selAll">全選</button><button type="button" id="selAdd" class="pri" disabled>加入資料夾</button><button type="button" id="selDone">完成</button></div>
 <div id="tray"></div><div id="ghost"></div>
 <dialog id="sheet"><div class="sheet" id="sheetBody"></div><div class="row"><button type="button" id="sheetClose">取消</button></div></dialog>
 <dialog id="radDlg"><div id="radAsk"><h3 style="margin-top:0">📏 離我多遠</h3><p style="font-size:14px;line-height:1.6">要算出每個地點離你多遠、篩出附近的地點，需要使用你目前的位置。位置只在這支手機上計算，不會上傳。</p>
@@ -340,13 +351,24 @@ function linkToFolder(v,fid){var m=String(v).match(/https?:\/\/\S+/);if(!m){toas
    if(typeof x.lat==='number'){q.lat=x.lat;q.lng=x.lng;}q.region=regionOf(q);places.push(q);added.push(q);ids.push(q.id);});
   save();fadd(fid,ids);render();frender();queueP(added);toast('已加入 '+ids.length+' 個地點到「'+(fget(fid)||{}).name+'」');})
  .catch(function(e){toast('讀取失敗：'+e.message);});}
-function pickFolder(pid,pre){var p=places.find(function(x){return x.id===pid;});if(!p)return;var sel=pre||null;
- function draw(){sheetBody.innerHTML='<h3 style="margin:4px 0 8px">把「'+esc(p.name)+'」加入資料夾</h3><div class="chooser">'+folders.map(function(f){var inF=f.ids.indexOf(pid)>=0;return '<button type="button" data-cf="'+esc(f.id)+'" class="'+(sel===f.id?'on':'')+'">'+(sel===f.id?'◉ ':'○ ')+esc(f.name)+(inF?'<span style="color:#9aa0a6;font-size:13px">（已在裡面）</span>':'')+'</button>';}).join('')+
+function pickFolder(pids,pre){if(!Array.isArray(pids))pids=[pids];pids=pids.filter(function(id){return places.some(function(x){return x.id===id;});});if(!pids.length)return;var pid=pids[0],p=places.find(function(x){return x.id===pid;}),ttl=pids.length>1?pids.length+' 個地點':'「'+p.name+'」';var sel=pre||null;
+ function draw(){sheetBody.innerHTML='<h3 style="margin:4px 0 8px">把'+esc(ttl)+'加入資料夾</h3><div class="chooser">'+folders.map(function(f){var inF=pids.every(function(x){return f.ids.indexOf(x)>=0;});return '<button type="button" data-cf="'+esc(f.id)+'" class="'+(sel===f.id?'on':'')+'">'+(sel===f.id?'◉ ':'○ ')+esc(f.name)+(inF?'<span style="color:#9aa0a6;font-size:13px">（已在裡面）</span>':'')+'</button>';}).join('')+
   '<button type="button" data-cf="__new">＋ 新資料夾…</button></div><div class="row" style="margin:8px 0 4px"><button type="button" id="cfOk" style="background:'+(sel?'#4285f4':'#3c4048')+';color:#fff"'+(sel?'':' disabled')+'>加入</button></div>';}
  draw();sheetBody.onclick=function(e){var b=e.target.closest('[data-cf]');if(b){var v=b.getAttribute('data-cf');if(v==='__new'){var f=fnew(prompt('新資料夾名稱'));if(f){sel=f.id;frender();}}else sel=v;draw();return;}
-  if(e.target.id==='cfOk'&&sel){var f=fget(sel);sheet.close();var n=fadd(sel,[pid]);frender();toast(n?'已加入「'+f.name+'」':'「'+f.name+'」裡已經有這個地點');}};
+  if(e.target.id==='cfOk'&&sel){var f=fget(sel);sheet.close();var n=fadd(sel,pids);frender();toast(n?'已加入 '+n+' 個地點到「'+f.name+'」':'「'+f.name+'」裡已經有'+(pids.length>1?'這些':'這個')+'地點');if(selMode)selExit();}};
  sheet.open||sheet.showModal();}
 document.getElementById('foldBtn').onclick=fopen;
+var selMode=false,selSet={};
+function selVis(){return Array.prototype.map.call(document.querySelectorAll('#list .place[data-pid]'),function(el){return el.getAttribute('data-pid');});}
+function selPaint(){var n=Object.keys(selSet).length,vis=selVis();document.querySelectorAll('#list .place[data-pid]').forEach(function(el){el.classList.toggle('sel',!!selSet[el.getAttribute('data-pid')]);});
+ document.getElementById('selCnt').textContent='已選 '+n;var all=vis.length&&vis.every(function(id){return selSet[id];});document.getElementById('selAll').textContent=all?'取消全選':'全選';document.getElementById('selAdd').disabled=!n;}
+function selExit(){selMode=false;selSet={};document.body.classList.remove('selmode');document.getElementById('selBtn').classList.remove('on');selPaint();}
+document.getElementById('selBtn').onclick=function(){if(selMode){selExit();return;}selMode=true;selSet={};document.body.classList.add('selmode');this.classList.add('on');selPaint();};
+document.getElementById('selDone').onclick=selExit;
+document.getElementById('selAll').onclick=function(){var vis=selVis(),all=vis.length&&vis.every(function(id){return selSet[id];});vis.forEach(function(id){if(all)delete selSet[id];else selSet[id]=1;});selPaint();};
+document.getElementById('selAdd').onclick=function(){var ids=Object.keys(selSet);if(ids.length)pickFolder(ids);};
+document.getElementById('list').addEventListener('click',function(e){if(!selMode)return;var pl=e.target.closest('.place[data-pid]');if(!pl||e.target.closest('.del,.fbtn'))return;e.preventDefault();e.stopPropagation();var id=pl.getAttribute('data-pid');if(selSet[id])delete selSet[id];else selSet[id]=1;selPaint();},true);
+new MutationObserver(function(){if(selMode)selPaint();}).observe(document.getElementById('list'),{childList:true});
 (function(){var tab=document.getElementById('ftab'),st=null;
  tab.addEventListener('pointerdown',function(e){st={x:e.clientX,moved:false};tab.setPointerCapture(e.pointerId);frender();foldEl.classList.add('drag');});
  tab.addEventListener('pointermove',function(e){if(!st)return;var dx=Math.min(0,e.clientX-st.x);if(dx<-6)st.moved=true;if(st.moved)foldEl.style.transform='translateX('+(window.innerWidth+dx)+'px)';});
@@ -368,7 +390,7 @@ fstack.addEventListener('click',function(e){if(lpFired){lpFired=false;return;}if
  var nm=e.target.getAttribute('data-fname');if(nm){frename(nm);return;}var c=e.target.closest('.fcard[data-fid]');if(c)fshow(c.getAttribute('data-fid'));});
 // desktop drop on cards (place or link)
 function dropTarget(el){var c=el&&el.closest&&el.closest('[data-fid],[data-tf]');return c?(c.getAttribute('data-fid')||c.getAttribute('data-tf')):null;}
-function handleDrop(fid,dt){var pid=dt.getData('application/x-igb-place');if(pid){pickFolder(pid,fid==='__new'?null:fid);return;}
+function handleDrop(fid,dt){var pid=dt.getData('application/x-igb-place');if(pid){try{pid=JSON.parse(pid);}catch(e){}pickFolder(pid,fid==='__new'?null:fid);return;}
  var t=dt.getData('text/uri-list')||dt.getData('text/plain');if(t)linkToFolder(t,fid);}
 [fstack,document.getElementById('tray')].forEach(function(el){
  el.addEventListener('dragover',function(e){if(dropTarget(e.target)){e.preventDefault();document.querySelectorAll('.hot').forEach(function(x){x.classList.remove('hot');});e.target.closest('[data-fid],[data-tf]').classList.add('hot');}});
@@ -377,12 +399,12 @@ var tray=document.getElementById('tray');
 function trayShow(){tray.innerHTML=folders.map(function(f){return '<div class="tc" data-tf="'+esc(f.id)+'">📁 '+esc(f.name)+'</div>';}).join('')+'<div class="tc" data-tf="__new">＋ 新資料夾</div>';tray.classList.add('show');}
 function trayHide(){tray.classList.remove('show');}
 var listEl=document.getElementById('list');
-listEl.addEventListener('dragstart',function(e){var pl=e.target.closest&&e.target.closest('[data-pid]');if(!pl)return;e.dataTransfer.setData('application/x-igb-place',pl.getAttribute('data-pid'));e.dataTransfer.effectAllowed='copy';trayShow();});
+listEl.addEventListener('dragstart',function(e){var pl=e.target.closest&&e.target.closest('[data-pid]');if(!pl)return;var did=pl.getAttribute('data-pid');e.dataTransfer.setData('application/x-igb-place',JSON.stringify(selMode&&selSet[did]?Object.keys(selSet):[did]));e.dataTransfer.effectAllowed='copy';trayShow();});
 listEl.addEventListener('dragend',function(){setTimeout(trayHide,50);});
 // touch long-press drag
 var tD=null;
 listEl.addEventListener('touchstart',function(e){var pl=e.target.closest('[data-pid]');if(!pl||e.target.closest('.del,.fbtn'))return;var t0=e.touches[0];
- tD={pid:pl.getAttribute('data-pid'),x:t0.clientX,y:t0.clientY,on:false,tm:setTimeout(function(){tD.on=true;trayShow();var g=document.getElementById('ghost'),p=places.find(function(q){return q.id===tD.pid;});g.textContent='📍 '+(p?p.name:'');g.style.transform='';g.style.display='block';g.style.left=(tD.x-40)+'px';g.style.top=(tD.y-30)+'px';if(navigator.vibrate)navigator.vibrate(20);},450)};},{passive:true});
+ var tp=pl.getAttribute('data-pid');tD={pid:selMode&&selSet[tp]?Object.keys(selSet):tp,x:t0.clientX,y:t0.clientY,on:false,tm:setTimeout(function(){tD.on=true;trayShow();var g=document.getElementById('ghost'),ids=Array.isArray(tD.pid)?tD.pid:[tD.pid],p=places.find(function(q){return q.id===ids[0];});g.innerHTML='📍 '+esc(p?p.name:'')+(ids.length>1?'<span class="badge">×'+ids.length+'</span>':'');g.style.transform='';g.style.display='block';g.style.left=(tD.x-40)+'px';g.style.top=(tD.y-30)+'px';if(navigator.vibrate)navigator.vibrate(20);},450)};},{passive:true});
 listEl.addEventListener('touchmove',function(e){if(!tD)return;var t=e.touches[0];
  if(!tD.on){if(Math.abs(t.clientX-tD.x)>10||Math.abs(t.clientY-tD.y)>10){clearTimeout(tD.tm);tD=null;}return;}
  e.preventDefault();var g=document.getElementById('ghost');g.style.left=(t.clientX-40)+'px';g.style.top=(t.clientY-50)+'px';tD.x=t.clientX;tD.y=t.clientY;

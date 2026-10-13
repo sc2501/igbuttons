@@ -35,20 +35,57 @@ dialog label{font-size:13px;color:#9aa0a6}
 .row{display:flex;gap:8px}.row button{flex:1;padding:12px;border:0;border-radius:10px;font-size:16px}
 .pill{display:flex;align-items:center;gap:8px;flex:1;background:#2c3038;border:1px solid #3c4048;border-radius:999px;padding:4px 12px 4px 4px}.pill.on{background:#1e3a5f;border-color:#4285f4}.pill button{background:#3c4048;color:#e8eaed;border:0;border-radius:999px;padding:8px 12px;font-size:14px;white-space:nowrap}.pill.on button{background:#4285f4;color:#fff}.pill input{flex:1;min-width:90px;accent-color:#4285f4}.pill span{font-size:14px;color:#e8eaed;min-width:46px;text-align:right}
 .near{display:flex;align-items:center;gap:10px;margin:2px 0 6px;flex-wrap:wrap}.near input{flex:1;min-width:140px}.near .lbl{font-size:14px;color:#9aa0a6;min-width:52px}.msg{background:#2b2a1c;color:#fdd663;border-radius:10px;padding:10px;font-size:14px;margin:6px 0}.dist{color:#81c995!important;font-weight:600}
+
+.top{display:flex;align-items:center;gap:8px}.top h1{flex:1;font-size:19px}
+.rbtn{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid #3c4048;background:#1c1f26;color:#e8eaed;font-size:20px;line-height:1}.rbtn.pri{background:#4285f4;border-color:#4285f4;color:#fff;font-size:26px}
+body{padding-bottom:30px}
+.fbtn{flex:none;width:44px;background:#2a2f3a;color:#e8eaed;border:0;border-radius:12px;font-size:17px}
+.pill{min-height:52px}
+.pill input[type=range]{-webkit-appearance:none;appearance:none;height:44px;background:transparent;touch-action:none;margin:0}
+.pill input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:#5f6368}
+.pill input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;margin-top:-11px;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.pill.on input[type=range]::-webkit-slider-runnable-track{background:#8ab4f8}
+.pill input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:#5f6368}.pill input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:#fff;border:0}
+#fold{position:fixed;inset:0;z-index:50;transform:translateX(100%);transition:transform .32s ease;overflow:hidden;
+ background:radial-gradient(1px 1px at 12% 8%,#fff8,transparent),radial-gradient(1px 1px at 72% 14%,#fff9,transparent),radial-gradient(1.5px 1.5px at 30% 30%,#fff7,transparent),radial-gradient(1px 1px at 85% 40%,#fff8,transparent),radial-gradient(1px 1px at 18% 62%,#fff6,transparent),radial-gradient(1.5px 1.5px at 60% 75%,#fff7,transparent),radial-gradient(1px 1px at 40% 90%,#fff6,transparent),radial-gradient(1px 1px at 92% 85%,#fff8,transparent),#000}
+#fold.open{transform:none}
+.fhead{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 12px) 18px 8px}
+.fhead h2{margin:0;font-size:24px;color:#fff;font-weight:700}
+.cbtn{width:56px;height:56px;border-radius:50%;border:1px solid #ffffff40;background:radial-gradient(circle at 35% 30%,#3a3a3a,#111);color:#fff;font-size:26px;box-shadow:0 2px 10px #0008}
+#fstack{position:absolute;top:calc(env(safe-area-inset-top) + 84px);bottom:0;left:0;right:0;overflow-y:auto;padding:20px 0 220px;-webkit-overflow-scrolling:touch}
+.fcard{position:relative;height:200px;margin:-118px 0 0;width:74%;border-radius:6px;padding:16px 16px;color:#222;
+ background:linear-gradient(160deg,#ffffffd9,#d9cfc3cc 40%,#8e8a85bb);box-shadow:0 10px 30px #000a;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+ display:flex;justify-content:space-between;align-items:flex-start;font-weight:700;font-size:15px;transition:transform .2s,box-shadow .2s;-webkit-user-select:none;user-select:none}
+.fcard:first-child{margin-top:0}
+.fcard .fn{max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fcard .fd{color:#333;font-size:15px;white-space:nowrap}
+.fcard .fc{position:absolute;left:16px;bottom:14px;font-size:12px;color:#444;font-weight:500}
+.fcard.hot{box-shadow:0 0 0 3px #8ab4f8,0 10px 30px #000a}
+.fcard.add{justify-content:center;align-items:center;font-size:44px;font-weight:300;color:#fff;background:linear-gradient(160deg,#d9c3abdd,#a08a78cc 60%,#6d5f55bb)}
+#fview{position:absolute;inset:0;background:#111318;transform:translateX(100%);transition:transform .3s;overflow-y:auto;padding:0 14px 40px}
+#fview.open{transform:none}
+#tray{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;gap:10px;overflow-x:auto;padding:14px 14px calc(14px + env(safe-area-inset-bottom));background:#000d}
+#tray.show{display:flex}
+#tray .tc{flex:none;min-width:120px;height:70px;border-radius:6px;padding:10px;font-weight:700;color:#222;background:linear-gradient(160deg,#fff,#d9cfc3 50%,#9b968f);transform:rotate(-3deg)}
+#tray .tc.hot{box-shadow:0 0 0 3px #8ab4f8}
+#ghost{position:fixed;z-index:70;pointer-events:none;background:#263045ee;color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;display:none;max-width:70vw;box-shadow:0 8px 24px #000a}
+.sheet button{display:block;width:100%;text-align:left;background:#2c3038;color:#e8eaed;border:0;border-radius:10px;padding:13px;margin:6px 0;font-size:16px}
+
 .empty{color:#9aa0a6;text-align:center;margin-top:40px}
 </style>
 </head>
 <body>
-<h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1>
+<header class="top"><h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1><button class="rbtn" id="foldBtn" aria-label="資料夾">📁</button><button class="rbtn pri" id="addBtn" aria-label="新增">＋</button></header>
 <div class="chips" id="chips"></div>
 <div class="chips" id="regs"></div>
 <div class="near"><div class="pill" id="pill"><button type="button" id="nearBtn">📏 離我多遠</button><input type="range" id="rad" min="0" max="4" step="1" value="2" aria-label="距離範圍"><span id="radLbl">1 km</span></div></div>
 <div id="msg"></div>
 <div id="list"></div>
-<div class="bar">
-<button class="pri" id="addBtn">＋ 新增</button>
 
-</div>
+<div id="fold"><div class="fhead"><button class="cbtn" id="foldBack" aria-label="返回">‹</button><h2>資料夾</h2><button class="cbtn" id="foldNew" aria-label="新增資料夾">＋</button></div>
+<div id="fstack"></div>
+<div id="fview"><div class="fhead" style="padding-left:0;padding-right:0"><button class="cbtn" id="fvBack" aria-label="返回">‹</button><h2 id="fvTitle" style="font-size:20px"></h2><button class="cbtn" id="fvMenu" aria-label="資料夾選項">⋯</button></div><div id="fvList"></div></div></div>
+<div id="tray"></div><div id="ghost"></div>
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div><div class="row"><button type="button" id="sheetClose">取消</button></div></dialog>
 <dialog id="radDlg"><div id="radAsk"><h3 style="margin-top:0">📏 離我多遠</h3><p style="font-size:14px;line-height:1.6">要算出每個地點離你多遠、篩出附近的地點，需要使用你目前的位置。位置只在這支手機上計算，不會上傳。</p>
 <div id="radErr" class="msg" style="display:none"></div>
 <div class="row"><button type="button" id="radCancel">取消</button><button type="button" id="radAllow" style="background:#4285f4;color:#fff">允許定位</button></div></div>
@@ -161,23 +198,23 @@ function render(){
   vis=vis.filter(function(p){if(typeof p.lat!=='number'){noC++;return false;}p._d=hav(me,p);return p._d<=R;}).sort(function(a,b){return a._d-b._d;});
   if(!vis.length)mg.innerHTML='<div class="msg">'+esc(fmtR(R))+' 內沒有地點，試著把範圍拉大一點。'+(noC?'（有 '+noC+' 個地點沒有座標，無法計算距離）':'')+'</div>';
   else if(noC)mg.innerHTML='<div class="msg">有 '+noC+' 個地點沒有座標，未列入附近結果。</div>';
-  document.getElementById('list').innerHTML='<div class="post">'+vis.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+  document.getElementById('list').innerHTML='<div class="post">'+vis.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><a class="go" draggable="true" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
    '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small class="dist">距離 '+esc(fmtD(p._d))+'</small><small>'+esc(p.address)+'</small>'+info(p)[1]+(p.sourceTitle?'<small>來源：'+esc(p.sourceTitle)+'</small>':'')+
-   '</a><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';
+   '</a><button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';
   return;}
  if(me){vis.forEach(function(p){p._d=typeof p.lat==='number'?hav(me,p):Infinity;});vis=vis.slice().sort(function(a,b){return a._d-b._d;});
-  document.getElementById('list').innerHTML=vis.length?'<div class="post"><div class="meta">由近到遠排列</div>'+vis.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+  document.getElementById('list').innerHTML=vis.length?'<div class="post"><div class="meta">由近到遠排列</div>'+vis.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><a class="go" draggable="true" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
    '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small class="dist">'+(p._d<Infinity?'距離 '+esc(fmtD(p._d)):'距離未知（沒有座標）')+'</small><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+(p.sourceTitle?'<small>來源：'+esc(p.sourceTitle)+'</small>':'')+
-   '</a><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>':'<p class="empty">這個條件下沒有地點。</p>';return;}
+   '</a><button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>':'<p class="empty">這個條件下沒有地點。</p>';return;}
  if(geoHint)mg.innerHTML='<div class="msg">'+esc(geoHint)+'</div>';
  var groups={},order=[];
  vis.forEach(function(p){var k=p.sourceUrl||p.sourceTitle||'(無來源)';if(!groups[k]){groups[k]=[];order.push(k);}groups[k].push(p);});
  var h=order.map(function(k){var g=groups[k],f=g[0];
   return '<div class="post"><h2>'+esc(f.sourceTitle||'未命名來源')+'</h2><div class="meta">'+esc(f.author||'')+
   (f.sourceUrl?' · <a href="'+esc(f.sourceUrl)+'" target="_blank" rel="noopener">開啟原貼文</a>':'')+'</div>'+
-  g.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+  g.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><a class="go" draggable="true" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
    '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+
-   '</a><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';}).join('');
+   '</a><button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';}).join('');
  document.getElementById('list').innerHTML=h||'<p class="empty">還沒有地點，按「＋ 新增」或「匯入」。</p>';
 }
 var rd=document.getElementById('radDlg');
@@ -194,7 +231,7 @@ document.getElementById('radAllow').onclick=function(){var e=document.getElement
 
 document.getElementById('regs').onclick=function(e){var r=e.target.getAttribute('data-r');if(r!=null){region=r;render();}};
 document.getElementById('chips').onclick=function(e){var c=e.target.getAttribute('data-c');if(c!=null){filter=c;render();}};
-document.getElementById('list').onclick=function(e){var id=e.target.getAttribute('data-id');if(!id)return;
+document.getElementById('list').onclick=function(e){var fb=e.target.getAttribute('data-f');if(fb){pickFolder(fb);return;}var id=e.target.getAttribute('data-id');if(!id)return;
  var p=places.find(function(x){return x.id===id;});if(p&&confirm('刪除「'+p.name+'」？')){places=places.filter(function(x){return x.id!==id;});save();render();}};
 var dlg=document.getElementById('dlg'),fm=document.getElementById('fm');
 document.getElementById('addBtn').onclick=function(){fm.reset();fm.elements.category.style.display='none';autoRes=[];document.getElementById('autoList').innerHTML='';document.getElementById('autoMsg').textContent='';document.getElementById('autoSaveRow').style.display='none';document.getElementById('manual').open=false;dlg.showModal();};
@@ -259,8 +296,97 @@ function pullEnrich(){if(!RESOLVER_URL)return;var mine=places.filter(function(p)
    p.enrichedAt=e.enrichedAt;});
   if(ch){save();render();}}).catch(function(){});}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)pullEnrich();});
+
+// ===== 資料夾 =====
+var FKEY='igbuttons_folders_v1',folders=[];try{folders=JSON.parse(localStorage.getItem(FKEY))||[];}catch(e){folders=[];}
+function fsave(){localStorage.setItem(FKEY,JSON.stringify(folders));}
+function today(){var d=new Date();return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';}
+function fget(id){return folders.find(function(f){return f.id===id;});}
+function fadd(fid,pids){var f=fget(fid);if(!f)return 0;var n=0;pids.forEach(function(id){if(f.ids.indexOf(id)<0){f.ids.push(id);n++;}});fsave();return n;}
+function fnew(name){name=(name||'').trim();if(!name)return null;var f={id:'f'+Date.now(),name:name.slice(0,40),date:today(),ids:[]};folders.push(f);fsave();return f;}
+var foldEl=document.getElementById('fold'),fstack=document.getElementById('fstack'),fview=document.getElementById('fview'),curF=null;
+function frender(){var n=folders.length;
+ fstack.innerHTML=folders.map(function(f,i){var k=n-i,x=Math.min(k*7,26),r=(i%2?2.5:-2.5)+(k>3?1:0);
+  var cnt=f.ids.filter(function(id){return places.some(function(p){return p.id===id;});}).length;
+  return '<div class="fcard" data-fid="'+esc(f.id)+'" style="margin-left:'+x+'%;transform:rotate('+r+'deg);z-index:'+(i+1)+'"><span class="fn" data-fname="'+esc(f.id)+'">'+esc(f.name)+'</span><span class="fd">'+esc(f.date)+'</span><span class="fc">'+cnt+' 個地點</span></div>';}).join('')+
+  '<div class="fcard add" id="fAddCard" style="margin-left:12%;transform:rotate(4deg);z-index:'+(n+2)+'">＋</div>';
+ if(curF)fvRender();}
+function fopen(){frender();foldEl.classList.add('open');}
+function fclose(){foldEl.classList.remove('open');fview.classList.remove('open');curF=null;}
+function fvRender(){var f=fget(curF);if(!f){fview.classList.remove('open');curF=null;return;}
+ document.getElementById('fvTitle').textContent=f.name;
+ var ps=f.ids.map(function(id){return places.find(function(p){return p.id===id;});}).filter(Boolean);
+ document.getElementById('fvList').innerHTML=ps.length?'<div class="post">'+ps.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+'<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+'</a><button class="del" data-out="'+esc(p.id)+'" aria-label="移出資料夾">✕</button></div>';}).join('')+'</div>':'<p class="empty">這個資料夾還沒有地點。<br>在主畫面長按地點拖到資料夾，或按 ⋯ 貼上連結。</p>';}
+function fshow(id){curF=id;fvRender();fview.classList.add('open');}
+var sheet=document.getElementById('sheet'),sheetBody=document.getElementById('sheetBody');
+function openSheet(title,items){sheetBody.innerHTML='<h3 style="margin:4px 0 8px">'+esc(title)+'</h3>'+items.map(function(it,i){return '<button type="button" data-si="'+i+'">'+esc(it[0])+'</button>';}).join('');
+ sheetBody.onclick=function(e){var i=e.target.getAttribute('data-si');if(i==null)return;sheet.close();items[+i][1]();};sheet.showModal();}
+document.getElementById('sheetClose').onclick=function(){sheet.close();};
+function frename(id){var f=fget(id);if(!f)return;var v=prompt('資料夾名稱',f.name);if(v&&v.trim()){f.name=v.trim().slice(0,40);fsave();frender();}}
+function fdelete(id){var f=fget(id);if(!f)return;if(confirm('刪除資料夾「'+f.name+'」？（裡面的地點不會被刪除）')){folders=folders.filter(function(x){return x.id!==id;});fsave();if(curF===id){fview.classList.remove('open');curF=null;}frender();}}
+function fmenu(id){var f=fget(id);if(!f)return;openSheet(f.name,[['✏️ 重新命名',function(){frename(id);}],['🔗 貼上連結加入地點',function(){var v=prompt('貼上 IG／Google 地圖／網頁連結');if(v)linkToFolder(v,id);}],['🗑️ 刪除資料夾',function(){fdelete(id);}]]);}
+function toast(t){var g=document.getElementById('ghost');g.textContent=t;g.style.display='block';g.style.left='50%';g.style.top='50%';g.style.transform='translate(-50%,-50%)';clearTimeout(toast.t);toast.t=setTimeout(function(){g.style.display='none';g.style.transform='';},1800);}
+function linkToFolder(v,fid){var m=String(v).match(/https?:\/\/\S+/);if(!m){toast('沒有找到網址');return;}if(!RESOLVER_URL){toast('連結判讀服務未設定');return;}
+ toast('讀取連結中…');
+ fetch(RESOLVER_URL+'?url='+encodeURIComponent(m[0])).then(function(r){return r.json();}).then(function(o){var ps=(o&&o.places)||[];if(!ps.length){toast('這個連結找不到地點');return;}
+  var t=Date.now(),ids=[],added=[];ps.forEach(function(x,i){var d=dupOf(x);if(d){ids.push(d.id);return;}
+   var q={id:'p'+t+'_'+i,name:x.name,address:x.address==='未確認'?'':(x.address||''),note:x.note||'',category:x.category||'餐廳',sourceUrl:x.sourceUrl||'',sourceTitle:x.sourceTitle||'',author:x.author||'',link:x.link||'',hours:x.hours||'未確認',closed:x.closed||'未確認',service:x.service||'未確認',extra:x.extra||'',hoursSrc:x.hoursSrc||'',closedSrc:x.closedSrc||'',serviceSrc:x.serviceSrc||'',extraSrc:x.extraSrc||'',verified:x.verified||'',goshuin:/寺|神社|神宮|稲荷|稻荷|大社/.test(x.name)?'未確認':''};
+   if(typeof x.lat==='number'){q.lat=x.lat;q.lng=x.lng;}q.region=regionOf(q);places.push(q);added.push(q);ids.push(q.id);});
+  save();fadd(fid,ids);render();frender();queueP(added);toast('已加入 '+ids.length+' 個地點到「'+(fget(fid)||{}).name+'」');})
+ .catch(function(e){toast('讀取失敗：'+e.message);});}
+function pickFolder(pid){var p=places.find(function(x){return x.id===pid;});if(!p)return;
+ openSheet('把「'+p.name+'」加入資料夾',folders.map(function(f){return [(f.ids.indexOf(pid)>=0?'✓ ':'📁 ')+f.name,function(){fadd(f.id,[pid]);frender();toast('已加入「'+f.name+'」');}];}).concat([['＋ 新資料夾…',function(){var f=fnew(prompt('新資料夾名稱'));if(f){fadd(f.id,[pid]);frender();toast('已加入「'+f.name+'」');}}]]));}
+document.getElementById('foldBtn').onclick=fopen;
+document.getElementById('foldBack').onclick=fclose;
+document.getElementById('fvBack').onclick=function(){fview.classList.remove('open');curF=null;frender();};
+document.getElementById('fvMenu').onclick=function(){if(curF)fmenu(curF);};
+document.getElementById('foldNew').onclick=function(){if(fnew(prompt('新資料夾名稱')))frender();};
+document.getElementById('fvList').onclick=function(e){var id=e.target.getAttribute('data-out');if(!id||!curF)return;var f=fget(curF);f.ids=f.ids.filter(function(x){return x!==id;});fsave();fvRender();};
+// card tap / long-press
+var lpT=null,lpFired=false;
+fstack.addEventListener('pointerdown',function(e){var c=e.target.closest('.fcard[data-fid]');if(!c)return;lpFired=false;clearTimeout(lpT);lpT=setTimeout(function(){lpFired=true;fmenu(c.getAttribute('data-fid'));},550);});
+['pointerup','pointercancel','pointerleave'].forEach(function(ev){fstack.addEventListener(ev,function(){clearTimeout(lpT);});});
+fstack.addEventListener('scroll',function(){clearTimeout(lpT);},{passive:true});
+fstack.addEventListener('contextmenu',function(e){if(e.target.closest('.fcard'))e.preventDefault();});
+fstack.addEventListener('click',function(e){if(lpFired){lpFired=false;return;}if(e.target.closest('#fAddCard')){if(fnew(prompt('新資料夾名稱')))frender();return;}
+ var nm=e.target.getAttribute('data-fname');if(nm){frename(nm);return;}var c=e.target.closest('.fcard[data-fid]');if(c)fshow(c.getAttribute('data-fid'));});
+// desktop drop on cards (place or link)
+function dropTarget(el){var c=el&&el.closest&&el.closest('[data-fid],[data-tf]');return c?(c.getAttribute('data-fid')||c.getAttribute('data-tf')):null;}
+function handleDrop(fid,dt){var pid=dt.getData('application/x-igb-place');if(pid){fadd(fid,[pid]);frender();toast('已加入「'+fget(fid).name+'」');return;}
+ var t=dt.getData('text/uri-list')||dt.getData('text/plain');if(t)linkToFolder(t,fid);}
+[fstack,document.getElementById('tray')].forEach(function(el){
+ el.addEventListener('dragover',function(e){if(dropTarget(e.target)){e.preventDefault();document.querySelectorAll('.hot').forEach(function(x){x.classList.remove('hot');});e.target.closest('[data-fid],[data-tf]').classList.add('hot');}});
+ el.addEventListener('drop',function(e){var fid=dropTarget(e.target);if(!fid)return;e.preventDefault();document.querySelectorAll('.hot').forEach(function(x){x.classList.remove('hot');});trayHide();handleDrop(fid,e.dataTransfer);});});
+var tray=document.getElementById('tray');
+function trayShow(){tray.innerHTML=folders.map(function(f){return '<div class="tc" data-tf="'+esc(f.id)+'">📁 '+esc(f.name)+'</div>';}).join('')+'<div class="tc" data-tf="__new">＋ 新資料夾</div>';tray.classList.add('show');}
+function trayHide(){tray.classList.remove('show');}
+var listEl=document.getElementById('list');
+listEl.addEventListener('dragstart',function(e){var pl=e.target.closest&&e.target.closest('[data-pid]');if(!pl)return;e.dataTransfer.setData('application/x-igb-place',pl.getAttribute('data-pid'));e.dataTransfer.effectAllowed='copy';trayShow();});
+listEl.addEventListener('dragend',function(){setTimeout(trayHide,50);});
+// touch long-press drag
+var tD=null;
+listEl.addEventListener('touchstart',function(e){var pl=e.target.closest('[data-pid]');if(!pl||e.target.closest('.del,.fbtn'))return;var t0=e.touches[0];
+ tD={pid:pl.getAttribute('data-pid'),x:t0.clientX,y:t0.clientY,on:false,tm:setTimeout(function(){tD.on=true;trayShow();var g=document.getElementById('ghost'),p=places.find(function(q){return q.id===tD.pid;});g.textContent='📍 '+(p?p.name:'');g.style.transform='';g.style.display='block';g.style.left=(tD.x-40)+'px';g.style.top=(tD.y-30)+'px';if(navigator.vibrate)navigator.vibrate(20);},450)};},{passive:true});
+listEl.addEventListener('touchmove',function(e){if(!tD)return;var t=e.touches[0];
+ if(!tD.on){if(Math.abs(t.clientX-tD.x)>10||Math.abs(t.clientY-tD.y)>10){clearTimeout(tD.tm);tD=null;}return;}
+ e.preventDefault();var g=document.getElementById('ghost');g.style.left=(t.clientX-40)+'px';g.style.top=(t.clientY-50)+'px';tD.x=t.clientX;tD.y=t.clientY;
+ var el=document.elementFromPoint(t.clientX,t.clientY);document.querySelectorAll('#tray .hot').forEach(function(x){x.classList.remove('hot');});var c=el&&el.closest&&el.closest('[data-tf]');if(c)c.classList.add('hot');},{passive:false});
+function tEnd(){if(!tD)return;clearTimeout(tD.tm);if(tD.on){var el=document.elementFromPoint(tD.x,tD.y),c=el&&el.closest&&el.closest('[data-tf]');document.getElementById('ghost').style.display='none';trayHide();
+  if(c){var fid=c.getAttribute('data-tf'),pid=tD.pid;if(fid==='__new'){var f=fnew(prompt('新資料夾名稱'));if(f)fid=f.id;else fid=null;}if(fid){fadd(fid,[pid]);frender();toast('已加入「'+fget(fid).name+'」');}}
+  tD.block=true;var b=tD;setTimeout(function(){if(tD===b)tD=null;},400);return;}tD=null;}
+listEl.addEventListener('touchend',tEnd);listEl.addEventListener('touchcancel',tEnd);
+listEl.addEventListener('click',function(e){if(tD&&tD.block){e.preventDefault();e.stopPropagation();tD=null;}},true);
+listEl.addEventListener('contextmenu',function(e){if(e.target.closest('[data-pid]'))e.preventDefault();});
+tray.addEventListener('click',function(e){var c=e.target.closest('[data-tf]');if(c&&c.getAttribute('data-tf')==='__new'){var f=fnew(prompt('新資料夾名稱'));if(f){trayShow();}}});
+// swipe left on main → folders; swipe right on folders → back
+var sw=null;
+document.addEventListener('touchstart',function(e){if(e.touches.length!==1||e.target.closest('input,.chips,#tray,dialog'))return sw=null;sw={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()};},{passive:true});
+document.addEventListener('touchend',function(e){if(!sw||(tD&&tD.on))return;var t=e.changedTouches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;sw=null;
+ if(Math.abs(dx)<70||Math.abs(dy)>50)return;
+ if(dx<0&&!foldEl.classList.contains('open'))fopen();else if(dx>0&&foldEl.classList.contains('open')){if(fview.classList.contains('open')){fview.classList.remove('open');curF=null;frender();}else fclose();}},{passive:true});
 render();
 pullEnrich();
+if(location.hash==='#folders')fopen();
 if(navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'geolocation'}).then(function(st){if(st.state==='granted')locateQuiet();}).catch(function(){});}
 places.forEach(geocode);
 })();

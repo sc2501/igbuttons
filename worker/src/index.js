@@ -86,7 +86,7 @@ function ohZh(oh){if(!oh)return null;if(/^24\/7$/.test(oh.trim()))return{hours:'
   if(/^(off|closed)$/i.test(rest)){off.push(dz);continue;}
   if(!/^\d{1,2}:\d\d/.test(rest))return{hours:oh,closed:null};
   hrs.push(dz+' '+rest.replace(/-/g,'–').replace(/,\s*/g,'、'));}
- return{hours:hrs.join('；')||null,closed:off.length?off.join('、'):null};}
+ return{hours:hrs.join('；').replace(/週一至週日/g,'每日')||null,closed:off.length?off.join('、'):null};}
 function nrm(s){return String(s||'').toLowerCase().replace(/[\s・·\-－()（）「」『』|｜,.。、]/g,'').replace(/[店舗]$/,'');}
 function simName(a,b){a=nrm(a);b=nrm(b);if(!a||!b)return false;if(a.includes(b)||b.includes(a))return true;
  let c=0;for(const ch of new Set(b))if(a.includes(ch))c++;return false;}

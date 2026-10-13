@@ -33,6 +33,7 @@ dialog{background:#1c1f26;color:#e8eaed;border:0;border-radius:16px;width:92vw;m
 dialog input,dialog textarea,dialog select{width:100%;background:#111318;color:#e8eaed;border:1px solid #3c4048;border-radius:8px;padding:10px;font-size:16px;margin:4px 0 10px}
 dialog label{font-size:13px;color:#9aa0a6}
 .row{display:flex;gap:8px}.row button{flex:1;padding:12px;border:0;border-radius:10px;font-size:16px}
+.pill{display:flex;align-items:center;gap:8px;flex:1;background:#2c3038;border:1px solid #3c4048;border-radius:999px;padding:4px 12px 4px 4px}.pill.on{background:#1e3a5f;border-color:#4285f4}.pill button{background:#3c4048;color:#e8eaed;border:0;border-radius:999px;padding:8px 12px;font-size:14px;white-space:nowrap}.pill.on button{background:#4285f4;color:#fff}.pill input{flex:1;min-width:90px;accent-color:#4285f4}.pill span{font-size:14px;color:#e8eaed;min-width:46px;text-align:right}
 .near{display:flex;align-items:center;gap:10px;margin:2px 0 6px;flex-wrap:wrap}.near input{flex:1;min-width:140px}.near .lbl{font-size:14px;color:#9aa0a6;min-width:52px}.msg{background:#2b2a1c;color:#fdd663;border-radius:10px;padding:10px;font-size:14px;margin:6px 0}.dist{color:#81c995!important;font-weight:600}
 .empty{color:#9aa0a6;text-align:center;margin-top:40px}
 </style>
@@ -41,7 +42,7 @@ dialog label{font-size:13px;color:#9aa0a6}
 <h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1>
 <div class="chips" id="chips"></div>
 <div class="chips" id="regs"></div>
-<div class="near"><button class="chip" id="nearBtn">📏 離我多遠</button></div>
+<div class="near"><div class="pill" id="pill"><button type="button" id="nearBtn">📏 離我多遠</button><input type="range" id="rad" min="0" max="4" step="1" value="2" aria-label="距離範圍"><span id="radLbl">1 km</span></div></div>
 <div id="msg"></div>
 <div id="list"></div>
 <div class="bar">
@@ -51,7 +52,7 @@ dialog label{font-size:13px;color:#9aa0a6}
 <dialog id="radDlg"><div id="radAsk"><h3 style="margin-top:0">📏 離我多遠</h3><p style="font-size:14px;line-height:1.6">要算出每個地點離你多遠、篩出附近的地點，需要使用你目前的位置。位置只在這支手機上計算，不會上傳。</p>
 <div id="radErr" class="msg" style="display:none"></div>
 <div class="row"><button type="button" id="radCancel">取消</button><button type="button" id="radAllow" style="background:#4285f4;color:#fff">允許定位</button></div></div>
-<div id="radPick" style="display:none"><h3 style="margin-top:0">📏 顯示多遠以內</h3><div class="chips" id="radChips"></div><div class="row" style="margin-top:8px"><button type="button" id="radClose">關閉</button></div></div></dialog>
+</dialog>
 <dialog id="dlg"><form method="dialog" id="fm">
 <h3 style="margin-top:0">新增地點</h3>
 <label>貼上連結（IG 貼文／Reels、Google 地圖地點或清單、網頁）</label><input name="auto" inputmode="url" placeholder="https://…">
@@ -153,7 +154,7 @@ function render(){
  if(region!=='全部地區'&&!rc[region])region='全部地區';
  document.getElementById('regs').innerHTML=rs.length>1?['全部地區'].concat(rs).map(function(r){return '<button class="chip'+(r===region?' on':'')+'" data-r="'+esc(r)+'">'+({'台灣':'🇹🇼','東京':'🗼','大阪':'🏯','京都':'⛩️','未分地區':'❔'}[r]||(r==='全部地區'?'🌏':'🗾'))+' '+esc(r)+(r==='全部地區'?'':' '+rc[r])+'</button>';}).join(''):'';
  var vis=places.filter(function(p){return (filter==='全部'||(p.category||'未分類')===filter)&&(region==='全部地區'||(regionOf(p)||'未分地區')===region);});
- var nb=document.getElementById('nearBtn'),mg=document.getElementById('msg');nb.className='chip'+(near?' on':'');nb.textContent=near?'📏 '+fmtR(RADII[radIdx]):'📏 離我多遠';mg.innerHTML='';
+ var nb=document.getElementById('nearBtn'),mg=document.getElementById('msg');nb.textContent=near?'📏 離我多遠 ✓':'📏 離我多遠';document.getElementById('pill').className='pill'+(near?' on':'');document.getElementById('radLbl').textContent=fmtR(RADII[radIdx]);mg.innerHTML='';
  if(near){
   if(!me){mg.innerHTML='<div class="msg">'+esc(geoMsg||'正在取得你的位置…')+'</div>';document.getElementById('list').innerHTML='';return;}
   var R=RADII[radIdx],noC=0;
@@ -180,18 +181,17 @@ function render(){
  document.getElementById('list').innerHTML=h||'<p class="empty">還沒有地點，按「＋ 新增」或「匯入」。</p>';
 }
 var rd=document.getElementById('radDlg');
-function radShow(pick){document.getElementById('radAsk').style.display=pick?'none':'block';document.getElementById('radPick').style.display=pick?'block':'none';
- if(pick)document.getElementById('radChips').innerHTML=RADII.map(function(r,i){return '<button type="button" class="chip'+(near&&i===radIdx?' on':'')+'" data-ri="'+i+'">'+fmtR(r)+'</button>';}).join('')+'<button type="button" class="chip'+(near?'':' on')+'" data-ri="-1">關閉</button>';
- rd.open||rd.showModal();}
-document.getElementById('nearBtn').onclick=function(){var e=document.getElementById('radErr');e.style.display='none';radShow(!!me);};
-document.getElementById('radCancel').onclick=document.getElementById('radClose').onclick=function(){rd.close();};
+function radAsk(){document.getElementById('radErr').style.display='none';rd.open||rd.showModal();}
+document.getElementById('nearBtn').onclick=function(){if(!me){radAsk();return;}near=!near;render();};
+document.getElementById('rad').oninput=function(){radIdx=+this.value;document.getElementById('radLbl').textContent=fmtR(RADII[radIdx]);if(!me){radAsk();return;}near=true;render();};
+document.getElementById('radCancel').onclick=function(){rd.close();};
 document.getElementById('radAllow').onclick=function(){var e=document.getElementById('radErr'),b=this;
  if(!navigator.geolocation){e.textContent='這個瀏覽器不支援定位功能。';e.style.display='block';return;}
  b.disabled=true;b.textContent='取得位置中…';
- navigator.geolocation.getCurrentPosition(function(pos){b.disabled=false;b.textContent='允許定位';me={lat:pos.coords.latitude,lng:pos.coords.longitude};geoHint='';render();radShow(true);},
+ navigator.geolocation.getCurrentPosition(function(pos){b.disabled=false;b.textContent='允許定位';me={lat:pos.coords.latitude,lng:pos.coords.longitude};geoHint='';near=true;rd.close();render();},
  function(err){b.disabled=false;b.textContent='再試一次';e.innerHTML=err.code===1?'定位被拒絕了。請到 iPhone 的「設定 › 隱私權與安全性 › 定位服務 › Safari 網站」，改成「使用 App 期間」，再回來按「再試一次」。<br>如果是加到主畫面的 app，也請在 Safari 的「設定 › Safari › 位置」允許。':err.code===3?'定位逾時，請到訊號較好的地方再試一次。':'目前無法取得你的位置，請稍後再試。';e.style.display='block';},
  {enableHighAccuracy:true,timeout:15000,maximumAge:60000});};
-document.getElementById('radChips').onclick=function(e){var i=e.target.getAttribute('data-ri');if(i==null)return;i=+i;if(i<0)near=false;else{near=true;radIdx=i;}rd.close();render();};
+
 document.getElementById('regs').onclick=function(e){var r=e.target.getAttribute('data-r');if(r!=null){region=r;render();}};
 document.getElementById('chips').onclick=function(e){var c=e.target.getAttribute('data-c');if(c!=null){filter=c;render();}};
 document.getElementById('list').onclick=function(e){var id=e.target.getAttribute('data-id');if(!id)return;

@@ -103,7 +103,7 @@ body.selmode .place.sel .go{background:#1e3a5f}
 <header class="top"><h1><img src="logo.png" alt="" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover">原來...這間...我有...看過</h1><div class="tbtns"><button class="rbtn" id="selBtn" aria-label="選取">☑︎</button><button class="rbtn" id="foldBtn" aria-label="資料夾">📁</button><button class="rbtn pri" id="addBtn" aria-label="新增">＋</button></div></header>
 <div class="chips" id="chips"></div>
 <div class="chips" id="regs"></div>
-<div class="near"><div class="pill" id="pill"><button type="button" id="nearBtn">📏 離我多遠</button><input type="range" id="rad" min="0" max="4" step="1" value="2" aria-label="距離範圍"><span id="radLbl">1 km</span></div></div>
+<div class="near"><div class="pill" id="pill"><button type="button" id="nearBtn">📏 離我多遠</button><input type="range" id="rad" min="0" max="1000" step="1" value="363" aria-label="距離範圍（不限）"><span id="radLbl" style="min-width:52px;text-align:right;font-variant-numeric:tabular-nums">1 km</span></div></div>
 <div id="msg"></div>
 <div id="list"></div>
 
@@ -186,7 +186,7 @@ else{var k=function(p){return [p.name,p.address,p.sourceUrl||''].join('|');},hav
 function save(){localStorage.setItem(KEY,JSON.stringify(places));}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function url(p){if(p.link&&/^https?:\/\//.test(p.link))return p.link;return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((p.name+' '+(p.address||'')).trim());}
-var region='全部地區',geoHint='',radIdx=2;
+var region='全部地區',geoHint='',radIdx=363;
 var JP={'東京都':'東京','大阪府':'大阪','京都府':'京都','北海道':'北海道'};
 function regionOf(p){if(p.region)return p.region;var a=(p.address||'')+' '+(p.name||'');
  var m=a.match(/(東京都|北海道|大阪府|京都府|[^\s0-9〒、，,]{2,3}県)/);if(m&&!/[臺台]/.test(m[1]))return JP[m[1]]||m[1].replace(/県$/,'');
@@ -197,8 +197,9 @@ function regionOf(p){if(p.region)return p.region;var a=(p.address||'')+' '+(p.na
   if(y>35.5&&y<35.9&&x>139.2&&x<139.95)return '東京';if(y>34.27&&y<35.05&&x>135.1&&x<135.75)return '大阪';
   if(y>24&&y<46&&x>122.9&&x<146)return '日本';}
  if(/日本|Japan/i.test(a))return '日本';return '';}
-var near=false,me=null,geoMsg='',RADII=[100,500,1000,3000,5000];
-function fmtR(m){return m<1000?m+' m':(m/1000)+' km';}
+var near=false,me=null,geoMsg='',RMAX=980;
+function radM(v){if(v>RMAX)return Infinity;var m=100*Math.pow(500,v/RMAX);return m<1000?Math.round(m/10)*10:m<10000?Math.round(m/100)*100:Math.round(m/1000)*1000;}
+function fmtR(m){return m===Infinity?'不限':m<1000?m+' m':(m/1000)+' km';}
 function fmtD(m){return m<1000?Math.round(m)+' m':(m/1000).toFixed(1)+' km';}
 function hav(a,p){var t=Math.PI/180,dl=(p.lat-a.lat)*t,dn=(p.lng-a.lng)*t,x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a.lat*t)*Math.cos(p.lat*t)*Math.sin(dn/2)*Math.sin(dn/2);return 12742000*Math.asin(Math.sqrt(x));}
 function locateQuiet(){if(!navigator.geolocation){geoHint='這個瀏覽器不支援定位，依原本順序排列。';render();return;}
@@ -230,12 +231,12 @@ function render(){
  if(region!=='全部地區'&&!rc[region])region='全部地區';
  document.getElementById('regs').innerHTML=rs.length>1?['全部地區'].concat(rs).map(function(r){return '<button class="chip'+(r===region?' on':'')+'" data-r="'+esc(r)+'">'+({'台灣':'🇹🇼','東京':'🗼','大阪':'🏯','京都':'⛩️','未分地區':'❔'}[r]||(r==='全部地區'?'🌏':'🗾'))+' '+esc(r)+(r==='全部地區'?'':' '+rc[r])+'</button>';}).join(''):'';
  var vis=places.filter(function(p){return (filter==='全部'||(p.category||'未分類')===filter)&&(region==='全部地區'||(regionOf(p)||'未分地區')===region);});
- var nb=document.getElementById('nearBtn'),mg=document.getElementById('msg');nb.textContent=near?'📏 離我多遠 ✓':'📏 離我多遠';document.getElementById('pill').className='pill'+(near?' on':'');document.getElementById('radLbl').textContent=fmtR(RADII[radIdx]);mg.innerHTML='';
+ var nb=document.getElementById('nearBtn'),mg=document.getElementById('msg');nb.textContent=near?'📏 離我多遠 ✓':'📏 離我多遠';document.getElementById('pill').className='pill'+(near?' on':'');document.getElementById('radLbl').textContent=fmtR(radM(radIdx));mg.innerHTML='';
  if(near){
   if(!me){mg.innerHTML='<div class="msg">'+esc(geoMsg||'正在取得你的位置…')+'</div>';document.getElementById('list').innerHTML='';return;}
-  var R=RADII[radIdx],noC=0;
+  var R=radM(radIdx),noC=0;
   vis=vis.filter(function(p){if(typeof p.lat!=='number'){noC++;return false;}p._d=hav(me,p);return p._d<=R;}).sort(function(a,b){return a._d-b._d;});
-  if(!vis.length)mg.innerHTML='<div class="msg">'+esc(fmtR(R))+' 內沒有地點，試著把範圍拉大一點。'+(noC?'（有 '+noC+' 個地點沒有座標，無法計算距離）':'')+'</div>';
+  if(!vis.length)mg.innerHTML='<div class="msg">'+(R===Infinity?'沒有可計算距離的地點。':esc(fmtR(R))+' 內沒有地點，試著把範圍拉大一點。')+(noC?'（有 '+noC+' 個地點沒有座標，無法計算距離）':'')+'</div>';
   else if(noC)mg.innerHTML='<div class="msg">有 '+noC+' 個地點沒有座標，未列入附近結果。</div>';
   document.getElementById('list').innerHTML='<div class="post">'+vis.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><div class="go" draggable="true"><b>'+esc(p.name||'(未命名)')+
    '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small class="dist">距離 '+esc(fmtD(p._d))+'</small><small>'+esc(p.address)+'</small>'+info(p)[1]+(p.sourceTitle?'<small>來源：'+esc(p.sourceTitle)+'</small>':'')+
@@ -259,7 +260,7 @@ function render(){
 var rd=document.getElementById('radDlg');
 function radAsk(){document.getElementById('radErr').style.display='none';rd.open||rd.showModal();}
 document.getElementById('nearBtn').onclick=function(){if(!me){radAsk();return;}near=!near;render();};
-document.getElementById('rad').oninput=function(){radIdx=+this.value;document.getElementById('radLbl').textContent=fmtR(RADII[radIdx]);if(!me){radAsk();return;}near=true;render();};
+document.getElementById('rad').oninput=function(){radIdx=+this.value;document.getElementById('radLbl').textContent=fmtR(radM(radIdx));if(!me){radAsk();return;}near=true;render();};
 document.getElementById('radCancel').onclick=function(){rd.close();};
 document.getElementById('radAllow').onclick=function(){var e=document.getElementById('radErr'),b=this;
  if(!navigator.geolocation){e.textContent='這個瀏覽器不支援定位功能。';e.style.display='block';return;}

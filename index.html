@@ -25,6 +25,15 @@ h1{font-size:22px;margin:14px 0 8px}
 .go{flex:1;display:block;text-decoration:none;background:#263045;color:#fff;border-radius:12px;padding:14px;min-height:64px}
 .go:active{background:#34518a}.go b{font-size:17px;display:block}.go small{color:#aab;font-size:13px;display:block;margin-top:3px}
 .go .tag{display:inline-block;background:#4285f4;color:#fff;border-radius:8px;padding:1px 7px;font-size:11px;margin-left:6px;vertical-align:middle}
+.place{align-items:stretch}.go{cursor:default;-webkit-user-select:none;user-select:none;min-width:0}.go:active{background:#263045}
+.mbtn{flex:none;width:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#1a73e8;color:#fff!important;text-decoration:none;border-radius:12px;font-size:11px}.mbtn .mi{font-size:22px;line-height:1}.mbtn:active{background:#1557b0}
+.place{gap:6px}.side{flex:none;width:40px;display:flex;flex-direction:column;gap:6px}.side>button{flex:1;width:40px;min-height:44px}.place .go{padding:12px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
+.tile{background:#1b2232;border:1px solid #33405a;border-radius:10px;padding:7px 8px;min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tile .th{display:flex;align-items:center;gap:4px;font-size:13px;color:#e8eaed}.tile .ti{font-size:15px}.tile .tl{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}.tile .tc2{display:none;color:#8ab4f8}.tile.open .tc2{display:inline}
+.tile .tv{font-size:12px;color:#9aa0a6;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.45}
+.tile.open{grid-column:1/-1;background:#22304a;border-color:#4285f4}.tile.open .tv{white-space:normal;color:#dfe3ea;font-size:13px;-webkit-user-select:text;user-select:text}
+.tsrc{display:none}.tile.open .tsrc{display:block;opacity:.6;font-size:11px;margin-top:4px}
 .del{flex:none;width:44px;background:#3a2226;color:#f28b82;border:0;border-radius:12px;font-size:18px}
 .bar{position:fixed;left:0;right:0;bottom:0;background:#1c1f26;display:flex;gap:6px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #2c3038}
 .bar button,.bar label{flex:1;background:#2c3038;color:#e8eaed;border:0;border-radius:10px;padding:11px 4px;font-size:14px;text-align:center}
@@ -204,10 +213,14 @@ function geoNext(){var p=geoQ.shift();if(!p){geoBusy=false;return;}geoBusy=true;
  .catch(function(){}).then(function(){setTimeout(geoNext,1100);});}
 function info(p){var h='';
  if(p.service==='只外帶')h+='<span class="tag" style="background:#e37400">🥡 只能外帶</span>';
- function S(k){return p[k]?'<span style="opacity:.55">（'+esc(p[k])+'）</span>':'';}
- var l='';if(p.hours)l+='<small>⏰ '+esc(p.hours)+S('hoursSrc')+'</small>';if(p.closed)l+='<small>🚫 公休：'+esc(p.closed)+S('closedSrc')+'</small>';
- if(p.goshuin)l+='<small>⛩️ 御朱印/御守：'+esc(p.goshuin)+'</small>';if(p.service&&p.service!=='只外帶')l+='<small>🍽️ '+esc(p.service)+S('serviceSrc')+'</small>';if(p.extra)l+='<small>💡 '+esc(p.extra)+S('extraSrc')+'</small>';if(p.reviews)l+='<small>👍 網友推薦：'+esc(p.reviews)+S('reviewsSrc')+'</small>';else if(p.queued&&!p.enrichedAt)l+='<small style="opacity:.55">🔎 店家資訊查詢中…</small>';
- if(p.verified)l+='<small style="opacity:.6">ℹ️ 資料：'+esc(p.verified)+'</small>';return [h,l];}
+ function T(ic,lb,v,src){return '<div class="tile" role="button" tabindex="0" aria-expanded="false"><div class="th"><span class="ti">'+ic+'</span><span class="tl">'+lb+'</span><span class="tc2">▴</span></div><div class="tv">'+esc(v)+(src&&p[src]?'<span class="tsrc">來源：'+esc(p[src])+'</span>':'')+'</div></div>';}
+ var l='';if(p.hours)l+=T('⏰','營業時間',p.hours,'hoursSrc');if(p.closed)l+=T('🚫','公休',p.closed,'closedSrc');
+ if(p.service&&p.service!=='只外帶')l+=T('🍽️','內用外帶',p.service,'serviceSrc');if(p.goshuin)l+=T('⛩️','御朱印',p.goshuin);
+ if(p.extra)l+=T('💡','補充資訊',p.extra,'extraSrc');if(p.reviews)l+=T('👍','網友推薦',p.reviews,'reviewsSrc');if(p.verified)l+=T('ℹ️','資料來源',p.verified);
+ l=l?'<div class="tiles">'+l+'</div>':'';
+ if(!p.reviews&&p.queued&&!p.enrichedAt)l+='<small style="opacity:.55">🔎 店家資訊查詢中…</small>';
+ return [h,l];}
+function rbtns(p,tail){return '<a class="mbtn" href="'+esc(url(p))+'" target="_blank" rel="noopener" aria-label="在 Google 地圖開啟"><span class="mi">🗺️</span><span class="ml">地圖</span></a><div class="side">'+tail+'</div>';}
 function render(){
  var cats=['全部','觀光景點','餐廳'];places.forEach(function(p){var c=p.category||'未分類';if(cats.indexOf(c)<0)cats.push(c);});
  if(cats.indexOf(filter)<0)filter='全部';
@@ -224,23 +237,23 @@ function render(){
   vis=vis.filter(function(p){if(typeof p.lat!=='number'){noC++;return false;}p._d=hav(me,p);return p._d<=R;}).sort(function(a,b){return a._d-b._d;});
   if(!vis.length)mg.innerHTML='<div class="msg">'+esc(fmtR(R))+' 內沒有地點，試著把範圍拉大一點。'+(noC?'（有 '+noC+' 個地點沒有座標，無法計算距離）':'')+'</div>';
   else if(noC)mg.innerHTML='<div class="msg">有 '+noC+' 個地點沒有座標，未列入附近結果。</div>';
-  document.getElementById('list').innerHTML='<div class="post">'+vis.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><a class="go" draggable="true" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+  document.getElementById('list').innerHTML='<div class="post">'+vis.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><div class="go" draggable="true"><b>'+esc(p.name||'(未命名)')+
    '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small class="dist">距離 '+esc(fmtD(p._d))+'</small><small>'+esc(p.address)+'</small>'+info(p)[1]+(p.sourceTitle?'<small>來源：'+esc(p.sourceTitle)+'</small>':'')+
-   '</a><button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';
+   '</div>'+rbtns(p,'<button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button>')+'</div>';}).join('')+'</div>';
   return;}
  if(me){vis.forEach(function(p){p._d=typeof p.lat==='number'?hav(me,p):Infinity;});vis=vis.slice().sort(function(a,b){return a._d-b._d;});
-  document.getElementById('list').innerHTML=vis.length?'<div class="post"><div class="meta">由近到遠排列</div>'+vis.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><a class="go" draggable="true" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+  document.getElementById('list').innerHTML=vis.length?'<div class="post"><div class="meta">由近到遠排列</div>'+vis.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><div class="go" draggable="true"><b>'+esc(p.name||'(未命名)')+
    '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small class="dist">'+(p._d<Infinity?'距離 '+esc(fmtD(p._d)):'距離未知（沒有座標）')+'</small><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+(p.sourceTitle?'<small>來源：'+esc(p.sourceTitle)+'</small>':'')+
-   '</a><button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>':'<p class="empty">這個條件下沒有地點。</p>';return;}
+   '</div>'+rbtns(p,'<button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button>')+'</div>';}).join('')+'</div>':'<p class="empty">這個條件下沒有地點。</p>';return;}
  if(geoHint)mg.innerHTML='<div class="msg">'+esc(geoHint)+'</div>';
  var groups={},order=[];
  vis.forEach(function(p){var k=p.sourceUrl||p.sourceTitle||'(無來源)';if(!groups[k]){groups[k]=[];order.push(k);}groups[k].push(p);});
  var h=order.map(function(k){var g=groups[k],f=g[0];
   return '<div class="post"><h2>'+esc(f.sourceTitle||'未命名來源')+'</h2><div class="meta">'+esc(f.author||'')+
   (f.sourceUrl?' · <a href="'+esc(f.sourceUrl)+'" target="_blank" rel="noopener">開啟原貼文</a>':'')+'</div>'+
-  g.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><a class="go" draggable="true" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+
+  g.map(function(p){return '<div class="place" data-pid="'+esc(p.id)+'"><div class="go" draggable="true"><b>'+esc(p.name||'(未命名)')+
    '<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+
-   '</a><button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button></div>';}).join('')+'</div>';}).join('');
+   '</div>'+rbtns(p,'<button class="fbtn" data-f="'+esc(p.id)+'" aria-label="加入資料夾">📁</button><button class="del" data-id="'+esc(p.id)+'" aria-label="刪除">✕</button>')+'</div>';}).join('')+'</div>';}).join('');
  document.getElementById('list').innerHTML=h||'<p class="empty">還沒有地點，按「＋ 新增」或「匯入」。</p>';
 }
 var rd=document.getElementById('radDlg');
@@ -340,7 +353,7 @@ function fclose(){foldEl.classList.remove('open');document.body.classList.remove
 function fvRender(){var f=fget(curF);if(!f){fview.classList.remove('open');curF=null;return;}
  document.getElementById('fvTitle').textContent=f.name;
  var ps=f.ids.map(function(id){return places.find(function(p){return p.id===id;});}).filter(Boolean);
- document.getElementById('fvList').innerHTML=ps.length?'<div class="post">'+ps.map(function(p){return '<div class="place"><a class="go" href="'+esc(url(p))+'" target="_blank" rel="noopener"><b>'+esc(p.name||'(未命名)')+'<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+'</a><button class="del" data-out="'+esc(p.id)+'" aria-label="移出資料夾">✕</button></div>';}).join('')+'</div>':'<p class="empty">這個資料夾還沒有地點。<br>在主畫面長按地點拖到資料夾，或按 ⋯ 貼上連結。</p>';}
+ document.getElementById('fvList').innerHTML=ps.length?'<div class="post">'+ps.map(function(p){return '<div class="place"><div class="go"><b>'+esc(p.name||'(未命名)')+'<span class="tag">'+esc(p.category||'未分類')+'</span>'+info(p)[0]+'</b><small>'+esc(p.address)+'</small>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+info(p)[1]+'</div>'+rbtns(p,'<button class="del" data-out="'+esc(p.id)+'" aria-label="移出資料夾">✕</button>')+'</div>';}).join('')+'</div>':'<p class="empty">這個資料夾還沒有地點。<br>在主畫面長按地點拖到資料夾，或按 ⋯ 貼上連結。</p>';}
 function fshow(id){curF=id;fvRender();fview.classList.add('open');}
 var sheet=document.getElementById('sheet'),sheetBody=document.getElementById('sheetBody');
 function openSheet(title,items){sheetBody.innerHTML='<h3 style="margin:4px 0 8px">'+esc(title)+'</h3>'+items.map(function(it,i){return '<button type="button" data-si="'+i+'">'+esc(it[0])+'</button>';}).join('');
@@ -374,7 +387,7 @@ document.getElementById('selBtn').onclick=function(){if(selMode){selExit();retur
 document.getElementById('selDone').onclick=selExit;
 document.getElementById('selAll').onclick=function(){var vis=selVis(),all=vis.length&&vis.every(function(id){return selSet[id];});vis.forEach(function(id){if(all)delete selSet[id];else selSet[id]=1;});selPaint();};
 document.getElementById('selAdd').onclick=function(){var ids=Object.keys(selSet);if(ids.length)pickFolder(ids);};
-document.getElementById('list').addEventListener('click',function(e){if(!selMode)return;var pl=e.target.closest('.place[data-pid]');if(!pl||e.target.closest('.del,.fbtn'))return;e.preventDefault();e.stopPropagation();var id=pl.getAttribute('data-pid');if(selSet[id])delete selSet[id];else selSet[id]=1;selPaint();},true);
+document.getElementById('list').addEventListener('click',function(e){if(!selMode)return;var pl=e.target.closest('.place[data-pid]');if(!pl||e.target.closest('.del,.fbtn,.mbtn'))return;e.preventDefault();e.stopPropagation();var id=pl.getAttribute('data-pid');if(selSet[id])delete selSet[id];else selSet[id]=1;selPaint();},true);
 new MutationObserver(function(){if(selMode)selPaint();}).observe(document.getElementById('list'),{childList:true});
 (function(){var tab=document.getElementById('ftab'),st=null;
  tab.addEventListener('pointerdown',function(e){st={x:e.clientX,moved:false};tab.setPointerCapture(e.pointerId);frender();foldEl.classList.add('drag');});
@@ -402,6 +415,8 @@ function handleDrop(fid,dt){var pid=dt.getData('application/x-igb-place');if(pid
 [fstack,document.getElementById('tray')].forEach(function(el){
  el.addEventListener('dragover',function(e){if(dropTarget(e.target)){e.preventDefault();document.querySelectorAll('.hot').forEach(function(x){x.classList.remove('hot');});e.target.closest('[data-fid],[data-tf]').classList.add('hot');}});
  el.addEventListener('drop',function(e){var fid=dropTarget(e.target);if(!fid)return;e.preventDefault();document.querySelectorAll('.hot').forEach(function(x){x.classList.remove('hot');});trayHide();handleDrop(fid,e.dataTransfer);});});
+document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('.tile');if(!t||(document.body.classList.contains('selmode')&&t.closest('#list')))return;if(window.getSelection&&String(window.getSelection()).length&&t.classList.contains('open'))return;t.classList.toggle('open');t.setAttribute('aria-expanded',t.classList.contains('open'));});
+document.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('tile')){e.preventDefault();e.target.click();}});
 var tray=document.getElementById('tray');
 function trayShow(){tray.innerHTML=folders.map(function(f){return '<div class="tc" data-tf="'+esc(f.id)+'">📁 '+esc(f.name)+'</div>';}).join('')+'<div class="tc" data-tf="__new">＋ 新資料夾</div>';tray.classList.add('show');}
 function trayHide(){tray.classList.remove('show');}
@@ -410,7 +425,7 @@ listEl.addEventListener('dragstart',function(e){var pl=e.target.closest&&e.targe
 listEl.addEventListener('dragend',function(){setTimeout(trayHide,50);});
 // touch long-press drag
 var tD=null;
-listEl.addEventListener('touchstart',function(e){var pl=e.target.closest('[data-pid]');if(!pl||e.target.closest('.del,.fbtn'))return;var t0=e.touches[0];
+listEl.addEventListener('touchstart',function(e){var pl=e.target.closest('[data-pid]');if(!pl||e.target.closest('.del,.fbtn,.mbtn'))return;var t0=e.touches[0];
  var tp=pl.getAttribute('data-pid');tD={pid:selMode&&selSet[tp]?Object.keys(selSet):tp,x:t0.clientX,y:t0.clientY,on:false,tm:setTimeout(function(){tD.on=true;trayShow();var g=document.getElementById('ghost'),ids=Array.isArray(tD.pid)?tD.pid:[tD.pid],p=places.find(function(q){return q.id===ids[0];});g.innerHTML='📍 '+esc(p?p.name:'')+(ids.length>1?'<span class="badge">×'+ids.length+'</span>':'');g.style.transform='';g.style.display='block';g.style.left=(tD.x-40)+'px';g.style.top=(tD.y-30)+'px';if(navigator.vibrate)navigator.vibrate(20);},450)};},{passive:true});
 listEl.addEventListener('touchmove',function(e){if(!tD)return;var t=e.touches[0];
  if(!tD.on){if(Math.abs(t.clientX-tD.x)>10||Math.abs(t.clientY-tD.y)>10){clearTimeout(tD.tm);tD=null;}return;}
